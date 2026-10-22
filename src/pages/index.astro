@@ -1,14 +1,13 @@
 ---
-import { getCollection } from "astro:content";
 import Base from "../layouts/Base.astro";
 import CardFan from "../components/CardFan.astro";
 import Timeline from "../components/Timeline.astro";
 import TechGrid from "../components/TechGrid.astro";
+import PostList from "../components/PostList.astro";
+import { getPosts } from "../lib/posts";
 import cv from "../data/cv.json";
 
-const posts = (await getCollection("blog", p => !p.data.draft))
-  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
-  .slice(0, 3);
+const posts = (await getPosts()).slice(0, 4);
 ---
 <Base title="Home">
   <section id="home" class="hero">
@@ -32,13 +31,9 @@ const posts = (await getCollection("blog", p => !p.data.draft))
     <p class="reveal"><a href="/cv">Full CV →</a></p>
   </section>
 
-  <section id="blog" class="block reveal">
+  <section id="blog" class="block wide reveal">
     <h2>Latest posts</h2>
-    <ul>
-      {posts.map(p => (
-        <li><a href={`/blog/${p.id}`}>{p.data.title}</a> <small>{p.data.date.toISOString().slice(0, 10)}</small></li>
-      ))}
-    </ul>
+    <PostList posts={posts} />
     <p><a href="/blog">All posts →</a></p>
   </section>
 
@@ -90,7 +85,4 @@ const posts = (await getCollection("blog", p => !p.data.draft))
   .sub { color: var(--accent); margin: 2.5rem 0 1.25rem; letter-spacing: .05em; }
   .contact { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 1.25rem; }
   .contact .lead { margin: 0; }
-  ul { list-style: none; padding: 0; margin-bottom: 1rem; }
-  li { margin-bottom: .5rem; }
-  small { opacity: .6; margin-left: .5rem; }
 </style>

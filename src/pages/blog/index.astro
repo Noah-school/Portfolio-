@@ -1,27 +1,18 @@
 ---
-import { getCollection } from "astro:content";
 import Base from "../../layouts/Base.astro";
+import PostList from "../../components/PostList.astro";
+import { getPosts } from "../../lib/posts";
 
-const posts = (await getCollection("blog", p => !p.data.draft))
-  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+const posts = await getPosts();
 ---
 <Base title="Blog">
-  <main class="page">
+  <main class="page wide">
     <h1>BLOG</h1>
-    <ul>
-      {posts.map(p => (
-        <li>
-          <a href={`/blog/${p.id}`}>{p.data.title}</a>
-          <small>{p.data.date.toISOString().slice(0, 10)}</small>
-          {p.data.description && <p>{p.data.description}</p>}
-        </li>
-      ))}
-    </ul>
+    <PostList posts={posts} filter />
+    <p><a href="/rss.xml">RSS feed</a></p>
   </main>
 </Base>
 
 <style>
-  ul { list-style: none; padding: 0; margin-top: 2rem; }
-  li { margin-bottom: 1.5rem; }
-  small { opacity: .6; margin-left: .5rem; }
+  .wide { max-width: 56rem; }
 </style>

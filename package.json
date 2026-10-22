@@ -8,8 +8,10 @@
     "preview": "astro preview"
   },
   "dependencies": {
+    "@astrojs/rss": "^4.0.19",
     "astro": "^7.4.2",
     "lucide-static": "^1.61.0",
+    "mermaid": "^12.2.0",
     "simple-icons": "^16.35.0"
   }
 }
