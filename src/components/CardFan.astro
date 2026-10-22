@@ -1,0 +1,9 @@
+---
+import projects from "../data/projects.json";
+import "./CardFan.css";
+---
+<main class="stage" id="stage" aria-live="polite" data-projects={JSON.stringify(projects)}></main>
+
+<script>
+  import "./cards.js";
+</script>
