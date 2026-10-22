@@ -1,24 +1,27 @@
-const MIN_CARDS = 3;
+const PAD = 2; // "coming soon" cards on each side so the fan is never lopsided
 const stage = document.getElementById("stage");
 const section = document.getElementById("projects");
 
-const cards = JSON.parse(stage.dataset.projects);
-while (cards.length < MIN_CARDS) cards.push({ title: "Coming soon", soon: true });
+const projects = JSON.parse(stage.dataset.projects);
+const ghost = () => Array.from({ length: PAD }, () => ({ title: "Coming soon", soon: true }));
+const cards = [...ghost(), ...projects, ...ghost()];
 cards.forEach(c => { if (!c.image) c.soon = true; });
 
-let active = 0;
+let active = PAD;
 
 const range = () => section.offsetHeight - innerHeight;
 
 // scrolling through the tall section steps the fan from card to card
 const activeFromScroll = () => {
   const p = Math.min(1, Math.max(0, -section.getBoundingClientRect().top / range()));
-  return Math.round(p * (cards.length - 1));
+  return PAD + Math.round(p * (projects.length - 1));
 };
 
 const scrollToCard = i => {
+  const k = i - PAD;
+  if (k < 0 || k >= projects.length) return;
   const top = section.getBoundingClientRect().top + scrollY;
-  scrollTo({ top: top + range() * (i / (cards.length - 1)), behavior: "smooth" });
+  scrollTo({ top: top + range() * (k / Math.max(1, projects.length - 1)), behavior: "smooth" });
 };
 
 const els = cards.map((c, i) => {
@@ -53,7 +56,7 @@ function layout() {
 }
 
 
-section.style.setProperty("--cards", cards.length);
+section.style.setProperty("--cards", projects.length);
 
 // the centre card leans slightly toward the pointer
 addEventListener("pointermove", e => {
