@@ -1,9 +1,25 @@
 ---
 import "../styles/global.css";
 import Backdrop from "../components/Backdrop.astro";
+import cv from "../data/cv.json";
 
-interface Props { title: string }
-const { title } = Astro.props;
+interface Props { title: string; description?: string; image?: string; type?: "website" | "article" }
+const {
+  title,
+  description = `${cv.name}, ${cv.title.toLowerCase()}. ${cv.tagline}`,
+  image = "/og.png",
+  type = "website",
+} = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const ogImage = new URL(image, Astro.site);
+const person = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: cv.name,
+  jobTitle: cv.title,
+  url: Astro.site,
+  sameAs: [cv.contact.github, cv.contact.linkedin],
+};
 const links = [
   { href: "/#home", label: "Home", id: "home" },
   { href: "/#projects", label: "Projects", id: "projects" },
@@ -20,6 +36,16 @@ const current = Astro.url.pathname.split("/")[1];
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{title} · Noah Verstraeten</title>
+  <meta name="description" content={description}>
+  <link rel="canonical" href={canonical}>
+  <meta property="og:type" content={type}>
+  <meta property="og:site_name" content={cv.name}>
+  <meta property="og:title" content={title}>
+  <meta property="og:description" content={description}>
+  <meta property="og:url" content={canonical}>
+  <meta property="og:image" content={ogImage}>
+  <meta name="twitter:card" content="summary_large_image">
+  {Astro.url.pathname === "/" && <script type="application/ld+json" set:html={JSON.stringify(person)} />}
   <link rel="alternate" type="application/rss+xml" title="Blog" href="/rss.xml">
   <script is:inline>document.documentElement.classList.add("js")</script>
 </head>

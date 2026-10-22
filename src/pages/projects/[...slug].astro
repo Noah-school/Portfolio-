@@ -13,6 +13,7 @@ const { Content, headings } = await render(project);
 <Article
   title={project.data.title}
   description={project.data.summary}
+  image={project.data.image}
   tags={project.data.tags}
   headings={headings}
   back={{ href: "/#projects", label: "← All projects" }}

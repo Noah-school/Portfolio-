@@ -5,15 +5,16 @@ interface Props {
   title: string;
   meta?: string[];
   description?: string;
+  image?: string;
   tags?: string[];
   tagHref?: string;
   headings: { depth: number; slug: string; text: string }[];
   back: { href: string; label: string };
 }
-const { title, meta = [], description, tags = [], tagHref, headings, back } = Astro.props;
+const { title, meta = [], description, image, tags = [], tagHref, headings, back } = Astro.props;
 const toc = headings.filter(h => h.depth === 2 || h.depth === 3);
 ---
-<Base title={title}>
+<Base title={title} description={description} image={image} type="article">
   <div class="layout">
     <main class="post-page">
       {meta.length > 0 && <p class="meta">{meta.map(m => <span>{m}</span>)}</p>}

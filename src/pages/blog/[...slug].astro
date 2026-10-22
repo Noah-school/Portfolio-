@@ -13,6 +13,8 @@ const { Content, headings } = await render(post);
 ---
 <Article
   title={post.data.title}
+  description={post.data.description}
+  image={post.data.cover}
   meta={[formatDate(post.data.date), `${readingTime(post)} min read`]}
   tags={post.data.tags}
   tagHref="/blog?tag="
