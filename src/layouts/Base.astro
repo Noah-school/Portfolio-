@@ -1,5 +1,6 @@
 ---
 import "../styles/global.css";
+import Backdrop from "../components/Backdrop.astro";
 
 interface Props { title: string }
 const { title } = Astro.props;
@@ -22,6 +23,7 @@ const current = Astro.url.pathname.split("/")[1];
   <script is:inline>document.documentElement.classList.add("js")</script>
 </head>
 <body>
+  <Backdrop />
   <div class="progress" id="progress"></div>
   <nav>
     {links.map(l => <a href={l.href} data-id={l.id} aria-current={l.id === current ? "page" : undefined}>{l.label}</a>)}

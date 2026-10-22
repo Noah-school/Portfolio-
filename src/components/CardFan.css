@@ -21,7 +21,7 @@
   color: inherit;
   cursor: pointer;
   background: rgba(127, 233, 201, .04);
-  transform: translate(var(--x), var(--y)) rotate(var(--r)) scale(var(--s, 1));
+  transform: translate(var(--x), var(--y)) rotate(var(--r)) scale(var(--s, 1)) perspective(800px) rotateX(var(--tx, 0deg)) rotateY(var(--ty, 0deg));
   opacity: var(--o);
   z-index: var(--z);
   transition: transform 1.1s cubic-bezier(.25, .7, .25, 1), opacity .9s;

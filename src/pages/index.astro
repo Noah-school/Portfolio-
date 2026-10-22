@@ -10,7 +10,7 @@ const posts = (await getCollection("blog", p => !p.data.draft))
 ---
 <Base title="Home">
   <section id="home" class="hero">
-    <h1>{cv.name}</h1>
+    <h1 class="type" data-text={cv.name} aria-label={cv.name}>{cv.name}</h1>
     <p>{cv.title}. {cv.summary}</p>
     <a class="cta" href="#projects">See my work ↓</a>
   </section>
@@ -41,6 +41,21 @@ const posts = (await getCollection("blog", p => !p.data.draft))
   </section>
 </Base>
 
+<script>
+  // type the name out once, with a blinking cursor
+  const h1 = document.querySelector<HTMLElement>(".type")!;
+  const text = h1.dataset.text!;
+  if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    h1.textContent = "";
+    let i = 0;
+    const tick = () => {
+      h1.textContent = text.slice(0, ++i);
+      if (i < text.length) setTimeout(tick, 90);
+    };
+    setTimeout(tick, 400);
+  }
+</script>
+
 <style>
   .hero {
     min-height: 100vh;
@@ -52,6 +67,8 @@ const posts = (await getCollection("blog", p => !p.data.draft))
     padding: 6rem 1rem 2rem;
     text-align: center;
   }
+  .type::after { content: "▌"; color: var(--accent); margin-left: .1em; animation: blink 1s steps(2) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
   .hero p { max-width: 32rem; opacity: .8; }
   .cta { text-decoration: none; border: 1px solid var(--accent); border-radius: 6px; padding: .6rem 1.2rem; transition: background .3s; }
   .cta:hover { background: rgba(127, 233, 201, .15); }

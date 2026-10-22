@@ -24,7 +24,7 @@ import cv from "../data/cv.json";
     ))}
 
     <h3>Skills</h3>
-    <p>{cv.skills.join(" · ")}</p>
+    <ul class="skills">{cv.skills.map((k, i) => <li style={`--i:${i}`}>{k}</li>)}</ul>
   </main>
 </Base>
 
@@ -32,4 +32,14 @@ import cv from "../data/cv.json";
   h2, h3 { margin-top: 1.5rem; color: var(--accent); }
   section { margin-top: .75rem; }
   small { opacity: .6; }
+  .skills { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: .5rem; }
+  .skills li {
+    border: 1px solid var(--accent);
+    border-radius: 999px;
+    padding: .15rem .8rem;
+    font-size: .85rem;
+    animation: pop .5s calc(var(--i) * 80ms) backwards;
+  }
+  @keyframes pop { from { opacity: 0; transform: scale(.7); } }
+  @media (prefers-reduced-motion: reduce) { .skills li { animation: none; } }
 </style>

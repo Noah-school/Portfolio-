@@ -55,6 +55,16 @@ function layout() {
 
 section.style.setProperty("--cards", cards.length);
 
+// the centre card leans slightly toward the pointer
+addEventListener("pointermove", e => {
+  const el = els[active], r = el.getBoundingClientRect();
+  const dx = (e.clientX - (r.left + r.width / 2)) / innerWidth;
+  const dy = (e.clientY - (r.top + r.height / 2)) / innerHeight;
+  els.forEach(c => { c.style.setProperty("--tx", "0deg"); c.style.setProperty("--ty", "0deg"); });
+  el.style.setProperty("--tx", `${-dy * 14}deg`);
+  el.style.setProperty("--ty", `${dx * 14}deg`);
+}, { passive: true });
+
 let ticking = false;
 addEventListener("scroll", () => {
   if (ticking) return;

@@ -1,0 +1,57 @@
+<canvas id="backdrop" aria-hidden="true"></canvas>
+<div class="spot" id="spot" aria-hidden="true"></div>
+
+<script>
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const canvas = document.getElementById("backdrop") as HTMLCanvasElement;
+  const spot = document.getElementById("spot")!;
+  const ctx = canvas.getContext("2d")!;
+
+  // soft spotlight that trails the pointer
+  addEventListener("pointermove", e => {
+    spot.style.setProperty("--mx", `${e.clientX}px`);
+    spot.style.setProperty("--my", `${e.clientY}px`);
+  }, { passive: true });
+
+  // slow drifting dots
+  type Dot = { x: number; y: number; vx: number; vy: number; r: number };
+  let dots: Dot[] = [];
+  const resize = () => {
+    canvas.width = innerWidth;
+    canvas.height = innerHeight;
+    dots = Array.from({ length: Math.round(innerWidth * innerHeight / 22000) }, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      vx: (Math.random() - .5) * .15,
+      vy: -Math.random() * .25 - .05,
+      r: Math.random() * 1.4 + .4,
+    }));
+  };
+  const draw = () => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "rgba(127, 233, 201, .35)";
+    for (const d of dots) {
+      d.x = (d.x + d.vx + canvas.width) % canvas.width;
+      d.y = (d.y + d.vy + canvas.height) % canvas.height;
+      ctx.beginPath();
+      ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    if (!reduce && !document.hidden) requestAnimationFrame(draw);
+  };
+  addEventListener("resize", () => { resize(); if (reduce) draw(); });
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) draw(); });
+  resize();
+  draw();
+</script>
+
+<style is:global>
+  #backdrop { position: fixed; inset: 0; z-index: -1; pointer-events: none; }
+  .spot {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 40%), rgba(127, 233, 201, .07), transparent 70%);
+  }
+</style>
