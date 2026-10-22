@@ -102,10 +102,6 @@
           "icon": "siPfsense"
         },
         {
-          "name": "Linux",
-          "icon": "siLinux"
-        },
-        {
           "name": "FreeBSD",
           "icon": "siFreebsd"
         },
