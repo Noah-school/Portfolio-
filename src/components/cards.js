@@ -5,7 +5,6 @@ const section = document.getElementById("projects");
 const projects = JSON.parse(stage.dataset.projects);
 const ghost = () => Array.from({ length: PAD }, () => ({ title: "Coming soon", soon: true }));
 const cards = [...ghost(), ...projects, ...ghost()];
-cards.forEach(c => { if (!c.image && !c.description) c.soon = true; });
 
 let active = PAD;
 
@@ -28,7 +27,7 @@ const els = cards.map((c, i) => {
   el.className = "card" + (c.soon ? " soon" : "");
   if (!c.soon && c.url) el.href = c.url;
   el.innerHTML =
-    (c.image ? `<img src="${c.image}" alt="">` : c.description ? `<span class="desc">${c.description}</span>` : `<span class="loading">LOADING...</span>`) +
+    (c.image ? `<img src="${c.image}" alt="">` : c.soon ? `<span class="loading">LOADING...</span>` : "") +
     `<span class="label">${c.title}</span>`;
   el.addEventListener("click", e => {
     if (i !== active) { e.preventDefault(); scrollToCard(i); }

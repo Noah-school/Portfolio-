@@ -85,12 +85,3 @@
   font-size: .75rem;
   z-index: 3;
 }
-
-.card .desc {
-  position: absolute;
-  inset: 28px 24px 70px;
-  z-index: 3;
-  font-size: clamp(.65rem, 1.1vw, .9rem);
-  line-height: 1.5;
-  opacity: .85;
-}
