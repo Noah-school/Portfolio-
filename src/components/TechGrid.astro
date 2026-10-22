@@ -1,9 +1,17 @@
 ---
 import * as si from "simple-icons";
 import { readFileSync } from "node:fs";
+import { svgPathBbox } from "svg-path-bbox";
 import cv from "../data/cv.json";
 
 const icons = si as unknown as Record<string, { path: string }>;
+
+// brand logos get a viewBox cropped to their drawing, so wide wordmarks
+// (Cisco, VMware, Go) fill the tile instead of floating in a square
+const viewBox = (path: string) => {
+  const [x0, y0, x1, y1] = svgPathBbox(path);
+  return `${x0} ${y0} ${x1 - x0} ${y1 - y0}`;
+};
 
 // stroke icons for skills that have no brand logo
 const lucide = (name: string) =>
@@ -18,7 +26,7 @@ const lucide = (name: string) =>
         const stroke = "lucide" in item ? lucide(item.lucide) : undefined;
         return (
           <li>
-            {icon && <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d={icon.path} /></svg>}
+            {icon && <svg viewBox={viewBox(icon.path)} fill="currentColor" aria-hidden="true"><path d={icon.path} /></svg>}
             {stroke && <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={stroke} />}
             <span>{item.name}</span>
           </li>
@@ -47,7 +55,7 @@ const lucide = (name: string) =>
     font-size: .8rem;
     transition: transform .3s, border-color .3s, background .3s, color .3s;
   }
-  li svg { width: 1.8rem; height: 1.8rem; opacity: .7; transition: opacity .3s, color .3s; }
+  li svg { height: 2.2rem; width: auto; max-width: 5.5rem; opacity: .9; transition: opacity .3s, color .3s; }
   li:hover { transform: translateY(-4px); border-color: var(--accent); background: rgba(127, 233, 201, .08); color: var(--accent); }
   li:hover svg { opacity: 1; color: var(--accent); }
   @media (prefers-reduced-motion: reduce) { li:hover { transform: none; } }
