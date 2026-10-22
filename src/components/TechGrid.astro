@@ -1,8 +1,13 @@
 ---
 import * as si from "simple-icons";
+import { readFileSync } from "node:fs";
 import cv from "../data/cv.json";
 
 const icons = si as unknown as Record<string, { path: string }>;
+
+// stroke icons for skills that have no brand logo
+const lucide = (name: string) =>
+  readFileSync(`node_modules/lucide-static/icons/${name}.svg`, "utf8").replace(/^[\s\S]*?<svg[^>]*>|<\/svg>\s*$/g, "");
 ---
 {cv.skills.map(g => (
   <div class="group reveal">
@@ -10,9 +15,11 @@ const icons = si as unknown as Record<string, { path: string }>;
     <ul>
       {g.items.map(item => {
         const icon = "icon" in item ? icons[item.icon] : undefined;
+        const stroke = "lucide" in item ? lucide(item.lucide) : undefined;
         return (
-          <li class:list={{ plain: !icon }}>
+          <li>
             {icon && <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d={icon.path} /></svg>}
+            {stroke && <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={stroke} />}
             <span>{item.name}</span>
           </li>
         );
@@ -43,6 +50,5 @@ const icons = si as unknown as Record<string, { path: string }>;
   li svg { width: 1.8rem; height: 1.8rem; opacity: .7; transition: opacity .3s, color .3s; }
   li:hover { transform: translateY(-4px); border-color: var(--accent); background: rgba(127, 233, 201, .08); color: var(--accent); }
   li:hover svg { opacity: 1; color: var(--accent); }
-  li.plain { min-height: 3rem; opacity: .75; }
   @media (prefers-reduced-motion: reduce) { li:hover { transform: none; } }
 </style>

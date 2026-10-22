@@ -122,10 +122,12 @@
           "icon": "siVoidlinux"
         },
         {
-          "name": "Windows Server"
+          "name": "Windows Server",
+          "lucide": "server"
         },
         {
-          "name": "Cloud governance"
+          "name": "Cloud governance",
+          "lucide": "cloud-cog"
         }
       ]
     },
@@ -153,10 +155,12 @@
           "icon": "siGit"
         },
         {
-          "name": "SBOM"
+          "name": "SBOM",
+          "lucide": "package-check"
         },
         {
-          "name": "CI/CD"
+          "name": "CI/CD",
+          "lucide": "refresh-ccw"
         }
       ]
     },
@@ -164,10 +168,12 @@
       "group": "Security",
       "items": [
         {
-          "name": "Network security"
+          "name": "Network security",
+          "lucide": "shield-check"
         },
         {
-          "name": "IDS/IPS"
+          "name": "IDS/IPS",
+          "lucide": "radar"
         }
       ]
     }
