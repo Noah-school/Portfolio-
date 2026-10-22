@@ -58,14 +58,17 @@ function layout() {
 
 section.style.setProperty("--cards", projects.length);
 
+const MAX_TILT = 5;
+const clampTilt = deg => Math.max(-MAX_TILT, Math.min(MAX_TILT, deg));
+
 addEventListener("pointermove", e => {
   if (e.pointerType !== "mouse") return;
   const el = els[active], r = el.getBoundingClientRect();
   const dx = (e.clientX - (r.left + r.width / 2)) / innerWidth;
   const dy = (e.clientY - (r.top + r.height / 2)) / innerHeight;
   els.forEach(c => { c.style.setProperty("--tx", "0deg"); c.style.setProperty("--ty", "0deg"); });
-  el.style.setProperty("--tx", `${-dy * 14}deg`);
-  el.style.setProperty("--ty", `${dx * 14}deg`);
+  el.style.setProperty("--tx", `${clampTilt(-dy * 10)}deg`);
+  el.style.setProperty("--ty", `${clampTilt(dx * 10)}deg`);
 }, { passive: true });
 
 let locked = false;
