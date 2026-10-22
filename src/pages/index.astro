@@ -1,9 +1,62 @@
 ---
+import { getCollection } from "astro:content";
 import Base from "../layouts/Base.astro";
+import CardFan from "../components/CardFan.astro";
+import cv from "../data/cv.json";
+
+const posts = (await getCollection("blog", p => !p.data.draft))
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
+  .slice(0, 3);
 ---
 <Base title="Home">
-  <main class="page">
-    <h1>Noah Verstraeten</h1>
-    <p style="text-align:center;margin-top:1rem">Developer. Projects, CV and blog.</p>
-  </main>
+  <section id="home" class="hero">
+    <h1>{cv.name}</h1>
+    <p>{cv.title}. {cv.summary}</p>
+    <a class="cta" href="#projects">See my work ↓</a>
+  </section>
+
+  <CardFan />
+
+  <section id="cv" class="block reveal">
+    <h2>CV</h2>
+    <p>{cv.summary}</p>
+    <p class="skills">{cv.skills.join(" · ")}</p>
+    <p><a href="/cv">Full CV →</a></p>
+  </section>
+
+  <section id="blog" class="block reveal">
+    <h2>Latest posts</h2>
+    <ul>
+      {posts.map(p => (
+        <li><a href={`/blog/${p.id}`}>{p.data.title}</a> <small>{p.data.date.toISOString().slice(0, 10)}</small></li>
+      ))}
+    </ul>
+    <p><a href="/blog">All posts →</a></p>
+  </section>
+
+  <section id="contact" class="block reveal">
+    <h2>Contact</h2>
+    <p><a href={`mailto:${cv.contact.email}`}>{cv.contact.email}</a></p>
+    <p><a href={cv.contact.github}>GitHub</a></p>
+  </section>
 </Base>
+
+<style>
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    padding: 6rem 1rem 2rem;
+    text-align: center;
+  }
+  .hero p { max-width: 32rem; opacity: .8; }
+  .cta { text-decoration: none; border: 1px solid var(--accent); border-radius: 6px; padding: .6rem 1.2rem; transition: background .3s; }
+  .cta:hover { background: rgba(127, 233, 201, .15); }
+  ul { list-style: none; padding: 0; margin-bottom: 1rem; }
+  li { margin-bottom: .5rem; }
+  small { opacity: .6; margin-left: .5rem; }
+  .skills { opacity: .7; margin-bottom: 1rem; }
+</style>

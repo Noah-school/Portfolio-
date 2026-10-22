@@ -2,8 +2,26 @@
 import projects from "../data/projects.json";
 import "./CardFan.css";
 ---
-<main class="stage" id="stage" aria-live="polite" data-projects={JSON.stringify(projects)}></main>
+<section id="projects" class="fan">
+  <div class="fan-sticky">
+    <h2>PROJECTS</h2>
+    <div class="stage" id="stage" aria-live="polite" data-projects={JSON.stringify(projects)}></div>
+  </div>
+</section>
 
 <script>
   import "./cards.js";
 </script>
+
+<style is:global>
+  .fan { height: calc(100vh + (max(var(--cards, 3), 3) - 1) * 60vh); }
+  .fan-sticky { position: sticky; top: 0; height: 100vh; overflow: hidden; }
+  .fan-sticky h2 {
+    position: relative;
+    z-index: 2;
+    padding-top: 12vh;
+    text-align: center;
+    font-size: clamp(2.5rem, 8vw, 6rem);
+    letter-spacing: .05em;
+  }
+</style>

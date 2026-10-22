@@ -1,11 +1,25 @@
 const MIN_CARDS = 3;
 const stage = document.getElementById("stage");
+const section = document.getElementById("projects");
 
 const cards = JSON.parse(stage.dataset.projects);
 while (cards.length < MIN_CARDS) cards.push({ title: "Coming soon", soon: true });
 cards.forEach(c => { if (!c.image) c.soon = true; });
 
-let active = Math.floor((cards.length - 1) / 2);
+let active = 0;
+
+const range = () => section.offsetHeight - innerHeight;
+
+// scrolling through the tall section steps the fan from card to card
+const activeFromScroll = () => {
+  const p = Math.min(1, Math.max(0, -section.getBoundingClientRect().top / range()));
+  return Math.round(p * (cards.length - 1));
+};
+
+const scrollToCard = i => {
+  const top = section.getBoundingClientRect().top + scrollY;
+  scrollTo({ top: top + range() * (i / (cards.length - 1)), behavior: "smooth" });
+};
 
 const els = cards.map((c, i) => {
   const el = document.createElement(c.soon ? "div" : "a");
@@ -15,7 +29,7 @@ const els = cards.map((c, i) => {
     (c.image ? `<img src="${c.image}" alt="">` : `<span class="loading">LOADING...</span>`) +
     `<span class="label">${c.title}</span>`;
   el.addEventListener("click", e => {
-    if (i !== active) { e.preventDefault(); active = i; layout(); }
+    if (i !== active) { e.preventDefault(); scrollToCard(i); }
     else if (c.soon) e.preventDefault();
   });
   stage.appendChild(el);
@@ -38,26 +52,20 @@ function layout() {
   });
 }
 
-const go = d => { active = Math.max(0, Math.min(cards.length - 1, active + d)); layout(); };
 
-addEventListener("keydown", e => {
-  if (e.key === "ArrowLeft") go(-1);
-  if (e.key === "ArrowRight") go(1);
-});
-let wheelLock = 0;
-addEventListener("wheel", e => {
-  if (Date.now() - wheelLock < 350) return;
-  wheelLock = Date.now();
-  go(Math.sign(e.deltaY || e.deltaX));
-});
-let sx = null;
-addEventListener("touchstart", e => sx = e.touches[0].clientX);
-addEventListener("touchend", e => {
-  if (sx === null) return;
-  const dx = e.changedTouches[0].clientX - sx;
-  if (Math.abs(dx) > 40) go(dx < 0 ? 1 : -1);
-  sx = null;
-});
-addEventListener("resize", layout);
+section.style.setProperty("--cards", cards.length);
 
+let ticking = false;
+addEventListener("scroll", () => {
+  if (ticking) return;
+  ticking = true;
+  requestAnimationFrame(() => {
+    ticking = false;
+    const a = activeFromScroll();
+    if (a !== active) { active = a; layout(); }
+  });
+}, { passive: true });
+addEventListener("resize", () => { active = activeFromScroll(); layout(); });
+
+active = activeFromScroll();
 layout();

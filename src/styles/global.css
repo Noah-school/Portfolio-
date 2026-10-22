@@ -1,4 +1,6 @@
 :root {
+  --card-w: clamp(150px, 20vw, 300px);
+  --card-h: calc(var(--card-w) * 1.6);
   --accent: #7fe9c9;
   --mono: ui-monospace, "DejaVu Sans Mono", Menlo, Consolas, monospace;
 }

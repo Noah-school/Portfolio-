@@ -1,14 +1,17 @@
 ---
 import "../styles/global.css";
 
-interface Props { title: string; fullscreen?: boolean }
-const { title, fullscreen = false } = Astro.props;
+interface Props { title: string }
+const { title } = Astro.props;
 const links = [
-  { href: "/", label: "Home" },
-  { href: "/projects", label: "Projects" },
-  { href: "/cv", label: "CV" },
-  { href: "/blog", label: "Blog" },
+  { href: "/#home", label: "Home", id: "home" },
+  { href: "/#projects", label: "Projects", id: "projects" },
+  { href: "/#cv", label: "CV", id: "cv" },
+  { href: "/#blog", label: "Blog", id: "blog" },
+  { href: "/#contact", label: "Contact", id: "contact" },
 ];
+// on the standalone pages the matching nav link is highlighted by path
+const current = Astro.url.pathname.split("/")[1];
 ---
 <!doctype html>
 <html lang="en">
@@ -16,19 +19,49 @@ const links = [
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{title} · Noah Verstraeten</title>
+  <script is:inline>document.documentElement.classList.add("js")</script>
 </head>
-<body class:list={{ fullscreen }}>
+<body>
+  <div class="progress" id="progress"></div>
   <nav>
-    {links.map(l => <a href={l.href} aria-current={Astro.url.pathname.startsWith(l.href) && l.href !== "/" || Astro.url.pathname === l.href ? "page" : undefined}>{l.label}</a>)}
+    {links.map(l => <a href={l.href} data-id={l.id} aria-current={l.id === current ? "page" : undefined}>{l.label}</a>)}
   </nav>
   <slot />
 </body>
 </html>
 
+<script>
+  const bar = document.getElementById("progress")!;
+  const setBar = () => {
+    const max = document.documentElement.scrollHeight - innerHeight;
+    bar.style.transform = `scaleX(${max > 0 ? scrollY / max : 0})`;
+  };
+  addEventListener("scroll", setBar, { passive: true });
+  setBar();
+
+  // fade sections in as they enter view
+  const io = new IntersectionObserver(entries => {
+    for (const e of entries) if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+  }, { threshold: .15 });
+  document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+
+  // highlight the nav link of the section in view (home page only)
+  const links = [...document.querySelectorAll<HTMLAnchorElement>("nav a")];
+  const spy = new IntersectionObserver(entries => {
+    for (const e of entries) if (e.isIntersecting)
+      links.forEach(l => l.toggleAttribute("aria-current", l.dataset.id === e.target.id));
+  }, { rootMargin: "-45% 0px -50% 0px" });
+  document.querySelectorAll("section[id]").forEach(el => spy.observe(el));
+</script>
+
 <style is:global>
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
   nav {
-    position: relative;
-    z-index: 5;
+    position: fixed;
+    inset: 0 0 auto 0;
+    z-index: 10;
     display: flex;
     justify-content: center;
     gap: 1.5rem;
@@ -36,9 +69,26 @@ const links = [
     text-transform: uppercase;
     letter-spacing: .08em;
     font-size: .85rem;
+    background: linear-gradient(#000 40%, transparent);
   }
-  nav a { color: #fff; text-decoration: none; opacity: .6; }
+  nav a { color: #fff; text-decoration: none; opacity: .6; transition: opacity .3s, color .3s; }
   nav a:hover, nav a[aria-current] { opacity: 1; color: var(--accent); }
-  body.fullscreen { overflow: hidden; }
-  main.page { max-width: 46rem; margin: 2rem auto; padding: 0 1rem 4rem; }
+
+  .progress {
+    position: fixed;
+    inset: 0 0 auto 0;
+    height: 2px;
+    z-index: 11;
+    background: var(--accent);
+    transform-origin: left;
+    transform: scaleX(0);
+  }
+
+  .js .reveal { opacity: 0; transform: translateY(2rem); transition: opacity .9s ease, transform .9s ease; }
+  .js .reveal.in { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) { .js .reveal { opacity: 1; transform: none; transition: none; } }
+
+  main.page { max-width: 46rem; margin: 0 auto; padding: 6rem 1rem 4rem; }
+  section.block { max-width: 46rem; margin: 0 auto; padding: 6rem 1rem; min-height: 60vh; scroll-margin-top: 2rem; }
+  section.block h2 { color: var(--accent); margin-bottom: 1rem; letter-spacing: .05em; }
 </style>
