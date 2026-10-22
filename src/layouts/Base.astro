@@ -1,0 +1,44 @@
+---
+import "../styles/global.css";
+
+interface Props { title: string; fullscreen?: boolean }
+const { title, fullscreen = false } = Astro.props;
+const links = [
+  { href: "/", label: "Home" },
+  { href: "/projects", label: "Projects" },
+  { href: "/cv", label: "CV" },
+  { href: "/blog", label: "Blog" },
+];
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{title} · Noah Verstraeten</title>
+</head>
+<body class:list={{ fullscreen }}>
+  <nav>
+    {links.map(l => <a href={l.href} aria-current={Astro.url.pathname.startsWith(l.href) && l.href !== "/" || Astro.url.pathname === l.href ? "page" : undefined}>{l.label}</a>)}
+  </nav>
+  <slot />
+</body>
+</html>
+
+<style is:global>
+  nav {
+    position: relative;
+    z-index: 5;
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    padding: 1rem;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    font-size: .85rem;
+  }
+  nav a { color: #fff; text-decoration: none; opacity: .6; }
+  nav a:hover, nav a[aria-current] { opacity: 1; color: var(--accent); }
+  body.fullscreen { overflow: hidden; }
+  main.page { max-width: 46rem; margin: 2rem auto; padding: 0 1rem 4rem; }
+</style>

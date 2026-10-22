@@ -1,0 +1,24 @@
+:root {
+  --accent: #7fe9c9;
+  --mono: ui-monospace, "DejaVu Sans Mono", Menlo, Consolas, monospace;
+}
+
+* { box-sizing: border-box; margin: 0; }
+
+body {
+  min-height: 100vh;
+  background: #000;
+  color: #fff;
+  font-family: var(--mono);
+  line-height: 1.6;
+}
+
+a { color: var(--accent); }
+
+h1 {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  font-size: clamp(2.5rem, 8vw, 6rem);
+  letter-spacing: .05em;
+}
