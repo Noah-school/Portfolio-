@@ -11,7 +11,7 @@ const posts = (await getCollection("blog", p => !p.data.draft))
 <Base title="Home">
   <section id="home" class="hero">
     <h1 class="type" data-text={cv.name} aria-label={cv.name}>{cv.name}</h1>
-    <p>{cv.title}. {cv.summary}</p>
+    <p>{cv.title}</p>
     <a class="cta" href="#projects">See my work ↓</a>
   </section>
 
@@ -20,7 +20,7 @@ const posts = (await getCollection("blog", p => !p.data.draft))
   <section id="cv" class="block reveal">
     <h2>CV</h2>
     <p>{cv.summary}</p>
-    <p class="skills">{cv.skills.join(" · ")}</p>
+    <p class="skills">{cv.skills.flatMap(g => g.items).slice(0, 8).join(" · ")}</p>
     <p><a href="/cv">Full CV →</a></p>
   </section>
 
@@ -37,7 +37,7 @@ const posts = (await getCollection("blog", p => !p.data.draft))
   <section id="contact" class="block reveal">
     <h2>Contact</h2>
     <p><a href={`mailto:${cv.contact.email}`}>{cv.contact.email}</a></p>
-    <p><a href={cv.contact.github}>GitHub</a></p>
+    <p><a href={cv.contact.github}>GitHub</a> · <a href={cv.contact.linkedin}>LinkedIn</a></p>
   </section>
 </Base>
 

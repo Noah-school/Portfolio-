@@ -1,13 +1,26 @@
 {
   "name": "Noah Verstraeten",
-  "title": "Developer",
-  "summary": "Short introduction about yourself.",
-  "contact": { "email": "you@example.com", "github": "https://github.com/Noah-school" },
+  "title": "Student Cybersecurity & Cloud",
+  "summary": "Netwerkbeheer is mijn passie. In mijn vrije tijd ben ik volop bezig met het optimaliseren en uitbreiden van mijn eigen homelab. Mijn droom is om te werken met fysieke clusters, gedreven door een sterke interesse in innovatie.",
+  "contact": {
+    "email": "vnoah0506@gmail.com",
+    "github": "https://github.com/Noah-school",
+    "linkedin": "https://linkedin.com/in/noahverstraeten"
+  },
   "experience": [
-    { "role": "Role", "company": "Company", "period": "2025 – now", "description": "What you did." }
+    { "company": "Pearle Antwerpen", "period": "Juni 2024 – nu" },
+    { "company": "Carrefour, Schoten", "period": "November 2023 – Juli 2023" },
+    { "company": "Pearle, Stabroek", "period": "Juli 2022 – Augustus 2022" }
   ],
   "education": [
-    { "degree": "Degree", "school": "AP Hogeschool", "period": "2024 – now" }
+    { "degree": "Cybersecurity & Cloud", "school": "AP Hogeschool", "period": "September 2023 – 2027" },
+    { "degree": "Multimedia", "school": "Kunstkaai", "period": "September 2021 – 2023" },
+    { "degree": "Grafische media", "school": "Kunstkaai", "period": "September 2019 – 2021" }
   ],
-  "skills": ["JavaScript", "TypeScript", "Astro"]
+  "skills": [
+    { "group": "Programmeren", "items": ["Python", "Bash", "React", "Angular", "Go"] },
+    { "group": "Netwerkbeheer", "items": ["Cisco netwerking", "Cloud Governance", "VMware/vSphere & Proxmox", "Fortigate & pfSense", "Windows Server", "Linux – FreeBSD, Debian, Fedora, Void"] },
+    { "group": "DevOps", "items": ["Docker & k8s", "Jenkins pipeline", "Ansible", "Git & SBOM", "CI/CD"] },
+    { "group": "Security", "items": ["Netwerkbeveiliging", "IDS/IPS"] }
+  ]
 }

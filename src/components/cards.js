@@ -5,7 +5,7 @@ const section = document.getElementById("projects");
 const projects = JSON.parse(stage.dataset.projects);
 const ghost = () => Array.from({ length: PAD }, () => ({ title: "Coming soon", soon: true }));
 const cards = [...ghost(), ...projects, ...ghost()];
-cards.forEach(c => { if (!c.image) c.soon = true; });
+cards.forEach(c => { if (!c.image && !c.description) c.soon = true; });
 
 let active = PAD;
 
@@ -24,11 +24,11 @@ const scrollToCard = i => {
 };
 
 const els = cards.map((c, i) => {
-  const el = document.createElement(c.soon ? "div" : "a");
+  const el = document.createElement(c.soon || !c.url ? "div" : "a");
   el.className = "card" + (c.soon ? " soon" : "");
-  if (!c.soon) el.href = c.url;
+  if (!c.soon && c.url) el.href = c.url;
   el.innerHTML =
-    (c.image ? `<img src="${c.image}" alt="">` : `<span class="loading">LOADING...</span>`) +
+    (c.image ? `<img src="${c.image}" alt="">` : c.description ? `<span class="desc">${c.description}</span>` : `<span class="loading">LOADING...</span>`) +
     `<span class="label">${c.title}</span>`;
   el.addEventListener("click", e => {
     if (i !== active) { e.preventDefault(); scrollToCard(i); }

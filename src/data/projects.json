@@ -1,8 +1,18 @@
 [
-  { "title": "Project", "image": "images/project.png", "url": "#" },
-  { "title": "Project", "image": "images/project.png", "url": "#" },
-  { "title": "Project", "image": "images/project.png", "url": "#" },
-  { "title": "Project", "image": "images/project.png", "url": "#" },
-  { "title": "Project", "image": "images/project.png", "url": "#" },
-  { "title": "Project", "image": "images/project.png", "url": "#" }
+  {
+    "title": "Apterra",
+    "description": "Project van AP om weerstations in Afrika te plaatsen. Mijn rol: de connectiviteit waarborgen en het LoRaWAN-netwerk opzetten."
+  },
+  {
+    "title": "Catmap",
+    "description": "Geïnspireerd door Pwnagotchi, maar in kaart brengen en scannen van het interne netwerk in plaats van externe netwerken."
+  },
+  {
+    "title": "Provis",
+    "description": "Visualisatietool voor Proxmox, geschreven in Go, die via de Proxmox API wijzigingen doorvoert. Doel: een interactieve interface zoals Cisco Packet Tracer of EVE-NG."
+  },
+  {
+    "title": "Mini Homelab",
+    "description": "Proxmox-server als test- en leeromgeving, beveiligd met OPNsense en Suricata en extern bereikbaar via een NetBird-tunnel."
+  }
 ]
