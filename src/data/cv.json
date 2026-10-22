@@ -9,28 +9,167 @@
     "linkedin": "https://linkedin.com/in/noahverstraeten"
   },
   "timeline": [
-    { "start": "2024-06", "type": "work", "title": "Pearle Antwerpen", "period": "June 2024 – now" },
-    { "start": "2023-11", "type": "work", "title": "Carrefour, Schoten", "period": "November 2023 – July 2023" },
-    { "start": "2023-09", "type": "study", "title": "Cybersecurity & Cloud", "place": "AP Hogeschool", "period": "September 2023 – 2027" },
-    { "start": "2022-07", "type": "work", "title": "Pearle, Stabroek", "period": "July 2022 – August 2022" },
-    { "start": "2021-09", "type": "study", "title": "Multimedia", "place": "Kunstkaai", "period": "September 2021 – 2023" },
-    { "start": "2019-09", "type": "study", "title": "Graphic media", "place": "Kunstkaai", "period": "September 2019 – 2021" }
+    {
+      "start": "2024-06",
+      "type": "work",
+      "title": "Pearle Antwerpen",
+      "period": "June 2024 – now",
+      "note": "Student job"
+    },
+    {
+      "start": "2023-11",
+      "type": "work",
+      "title": "Carrefour, Schoten",
+      "period": "November 2023 – July 2023",
+      "note": "Student job"
+    },
+    {
+      "start": "2023-09",
+      "type": "study",
+      "title": "Cybersecurity & Cloud",
+      "place": "AP Hogeschool",
+      "period": "September 2023 – 2027"
+    },
+    {
+      "start": "2022-07",
+      "type": "work",
+      "title": "Pearle, Stabroek",
+      "period": "July 2022 – August 2022",
+      "note": "Student job"
+    },
+    {
+      "start": "2021-09",
+      "type": "study",
+      "title": "Multimedia",
+      "place": "Kunstkaai",
+      "period": "September 2021 – 2023"
+    },
+    {
+      "start": "2019-09",
+      "type": "study",
+      "title": "Graphic media",
+      "place": "Kunstkaai",
+      "period": "September 2019 – 2021"
+    }
   ],
   "skills": [
-    { "group": "Programming", "items": [
-      { "name": "Python", "icon": "siPython" }, { "name": "Bash", "icon": "siGnubash" }, { "name": "React", "icon": "siReact" },
-      { "name": "Angular", "icon": "siAngular" }, { "name": "Go", "icon": "siGo" }
-    ] },
-    { "group": "Networking", "items": [
-      { "name": "Cisco", "icon": "siCisco" }, { "name": "VMware vSphere", "icon": "siVmware" }, { "name": "Proxmox", "icon": "siProxmox" },
-      { "name": "Fortigate", "icon": "siFortinet" }, { "name": "pfSense", "icon": "siPfsense" }, { "name": "Linux", "icon": "siLinux" },
-      { "name": "FreeBSD", "icon": "siFreebsd" }, { "name": "Debian", "icon": "siDebian" }, { "name": "Fedora", "icon": "siFedora" },
-      { "name": "Void Linux", "icon": "siVoidlinux" }, { "name": "Windows Server" }, { "name": "Cloud governance" }
-    ] },
-    { "group": "DevOps", "items": [
-      { "name": "Docker", "icon": "siDocker" }, { "name": "Kubernetes", "icon": "siKubernetes" }, { "name": "Jenkins", "icon": "siJenkins" },
-      { "name": "Ansible", "icon": "siAnsible" }, { "name": "Git", "icon": "siGit" }, { "name": "SBOM" }, { "name": "CI/CD" }
-    ] },
-    { "group": "Security", "items": [{ "name": "Network security" }, { "name": "IDS/IPS" }] }
+    {
+      "group": "Programming",
+      "items": [
+        {
+          "name": "Python",
+          "icon": "siPython"
+        },
+        {
+          "name": "Bash",
+          "icon": "siGnubash"
+        },
+        {
+          "name": "React",
+          "icon": "siReact"
+        },
+        {
+          "name": "Angular",
+          "icon": "siAngular"
+        },
+        {
+          "name": "Go",
+          "icon": "siGo"
+        }
+      ]
+    },
+    {
+      "group": "Networking",
+      "items": [
+        {
+          "name": "Cisco",
+          "icon": "siCisco"
+        },
+        {
+          "name": "VMware vSphere",
+          "icon": "siVmware"
+        },
+        {
+          "name": "Proxmox",
+          "icon": "siProxmox"
+        },
+        {
+          "name": "Fortigate",
+          "icon": "siFortinet"
+        },
+        {
+          "name": "pfSense",
+          "icon": "siPfsense"
+        },
+        {
+          "name": "Linux",
+          "icon": "siLinux"
+        },
+        {
+          "name": "FreeBSD",
+          "icon": "siFreebsd"
+        },
+        {
+          "name": "Debian",
+          "icon": "siDebian"
+        },
+        {
+          "name": "Fedora",
+          "icon": "siFedora"
+        },
+        {
+          "name": "Void Linux",
+          "icon": "siVoidlinux"
+        },
+        {
+          "name": "Windows Server"
+        },
+        {
+          "name": "Cloud governance"
+        }
+      ]
+    },
+    {
+      "group": "DevOps",
+      "items": [
+        {
+          "name": "Docker",
+          "icon": "siDocker"
+        },
+        {
+          "name": "Kubernetes",
+          "icon": "siKubernetes"
+        },
+        {
+          "name": "Jenkins",
+          "icon": "siJenkins"
+        },
+        {
+          "name": "Ansible",
+          "icon": "siAnsible"
+        },
+        {
+          "name": "Git",
+          "icon": "siGit"
+        },
+        {
+          "name": "SBOM"
+        },
+        {
+          "name": "CI/CD"
+        }
+      ]
+    },
+    {
+      "group": "Security",
+      "items": [
+        {
+          "name": "Network security"
+        },
+        {
+          "name": "IDS/IPS"
+        }
+      ]
+    }
   ]
 }

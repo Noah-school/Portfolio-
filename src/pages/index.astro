@@ -26,7 +26,7 @@ const posts = (await getCollection("blog", p => !p.data.draft))
   <section id="cv" class="block wide">
     <h2 class="reveal">About &amp; CV</h2>
     <p class="lead reveal">{cv.summary}</p>
-    <Timeline />
+    <Timeline only="study" />
     <h3 class="sub reveal">Skills</h3>
     <TechGrid />
     <p class="reveal"><a href="/cv">Full CV →</a></p>

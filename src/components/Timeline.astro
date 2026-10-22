@@ -1,14 +1,19 @@
 ---
 import cv from "../data/cv.json";
 
-const entries = [...cv.timeline].sort((a, b) => b.start.localeCompare(a.start));
+interface Props { only?: "study" | "work" }
+const { only } = Astro.props;
+
+const entries = cv.timeline
+  .filter(e => !only || e.type === only)
+  .sort((a, b) => b.start.localeCompare(a.start));
 ---
 <ol class="timeline">
   {entries.map((e, i) => (
     <li class={`reveal ${e.type}`} style={`transition-delay:${i * 80}ms`}>
       <span class="dot" aria-hidden="true"></span>
       <span class="period">{e.period}</span>
-      <strong>{e.title}</strong>
+      <strong>{e.title}{"note" in e && <span class="tag">{e.note}</span>}</strong>
       {"place" in e && <span class="place">{e.place}</span>}
     </li>
   ))}
@@ -42,4 +47,14 @@ const entries = [...cv.timeline].sort((a, b) => b.start.localeCompare(a.start));
   .period { font-size: .8rem; opacity: .55; letter-spacing: .05em; }
   strong { font-size: 1.1rem; }
   .place { opacity: .75; }
+  .tag {
+    margin-left: .6rem;
+    padding: .05rem .5rem;
+    border: 1px solid rgba(127, 233, 201, .4);
+    border-radius: 999px;
+    font-size: .7rem;
+    font-weight: normal;
+    color: var(--accent);
+    vertical-align: middle;
+  }
 </style>
