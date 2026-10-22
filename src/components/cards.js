@@ -1,4 +1,4 @@
-const PAD = 2; // "coming soon" cards on each side so the fan is never lopsided
+const PAD = 2;
 const stage = document.getElementById("stage");
 const section = document.getElementById("projects");
 
@@ -11,7 +11,6 @@ let active = PAD;
 
 const range = () => section.offsetHeight - innerHeight;
 
-// scrolling through the tall section steps the fan from card to card
 const activeFromScroll = () => {
   const p = Math.min(1, Math.max(0, -section.getBoundingClientRect().top / range()));
   return PAD + Math.round(p * (projects.length - 1));
@@ -58,7 +57,6 @@ function layout() {
 
 section.style.setProperty("--cards", projects.length);
 
-// the centre card leans slightly toward the pointer
 addEventListener("pointermove", e => {
   const el = els[active], r = el.getBoundingClientRect();
   const dx = (e.clientX - (r.left + r.width / 2)) / innerWidth;
