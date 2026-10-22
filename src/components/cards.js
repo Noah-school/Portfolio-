@@ -59,6 +59,7 @@ function layout() {
 section.style.setProperty("--cards", projects.length);
 
 addEventListener("pointermove", e => {
+  if (e.pointerType !== "mouse") return;
   const el = els[active], r = el.getBoundingClientRect();
   const dx = (e.clientX - (r.left + r.width / 2)) / innerWidth;
   const dy = (e.clientY - (r.top + r.height / 2)) / innerHeight;
