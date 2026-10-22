@@ -77,6 +77,26 @@ const current = Astro.url.pathname.split("/")[1];
 </script>
 
 <style is:global>
+  @page { size: A4; margin: 12mm 14mm; }
+  @media print {
+    html { font-size: 10.5px; }
+    :root { --accent: #0b6e5a; }
+    .timeline li { padding-bottom: .6rem !important; }
+    .group { margin-bottom: .9rem !important; }
+    .group ul { grid-template-columns: repeat(auto-fill, minmax(5.5rem, 1fr)) !important; gap: .35rem !important; }
+    .group li { min-height: 3.6rem !important; padding: .4rem .25rem !important; }
+    .group li svg { height: 1.2rem !important; max-width: 3.4rem !important; }
+    .group li { gap: .3rem !important; }
+    h2, h3 { break-after: avoid; }
+    li, .intro { break-inside: avoid; }
+    body { background: #fff; color: #000; min-height: 0; }
+    nav, .progress, #backdrop, .spot, .no-print, .portrait::after { display: none !important; }
+    .js .reveal { opacity: 1 !important; transform: none !important; }
+    a { color: #000; }
+    main.page { padding: 0 !important; margin: 0 auto !important; max-width: none !important; }
+    main.page h2 { margin-top: 1.25rem !important; }
+  }
+
   html { scroll-behavior: smooth; }
   @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 

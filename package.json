@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "pdf": "astro build && node scripts/pdf.mjs"
   },
   "dependencies": {
     "@astrojs/rss": "^4.0.19",
@@ -14,5 +15,8 @@
     "mermaid": "^12.2.0",
     "simple-icons": "^16.35.0",
     "svg-path-bbox": "^2.1.0"
+  },
+  "devDependencies": {
+    "puppeteer-core": "^25.16.0"
   }
 }

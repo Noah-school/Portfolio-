@@ -2,7 +2,10 @@
 import Base from "../layouts/Base.astro";
 import Timeline from "../components/Timeline.astro";
 import TechGrid from "../components/TechGrid.astro";
+import { getCollection } from "astro:content";
 import cv from "../data/cv.json";
+
+const projects = (await getCollection("projects")).sort((a, b) => a.data.order - b.data.order);
 ---
 <Base title="Resume">
   <main class="page">
@@ -19,14 +22,34 @@ import cv from "../data/cv.json";
           <a href={cv.contact.github}>GitHub</a>
           <a href={cv.contact.linkedin}>LinkedIn</a>
         </p>
+        <p class="no-print"><a class="download" href="/Noah-Verstraeten-Resume.pdf" download>Download PDF ↓</a></p>
       </div>
     </header>
 
-    <h2>Experience &amp; education</h2>
-    <Timeline />
+    <p class="print-only">
+      Website: portfolio.xenophon.be · LinkedIn: linkedin.com/in/noahverstraeten · GitHub: github.com/Noah-school
+    </p>
 
-    <h2>Skills</h2>
-    <TechGrid />
+    <div class="body">
+      <div>
+        <h2>Experience &amp; education</h2>
+        <Timeline />
+
+        <h2>Projects</h2>
+        <ul class="projects">
+          {projects.map(p => (
+            <li>
+              <h3><a href={`/projects/${p.id}`}>{p.data.title}</a></h3>
+              <p>{p.data.summary}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div>
+        <h2>Skills</h2>
+        <TechGrid />
+      </div>
+    </div>
   </main>
 </Base>
 
@@ -56,5 +79,18 @@ import cv from "../data/cv.json";
   @keyframes scan { to { transform: translateY(-7px); } }
   @media (prefers-reduced-motion: reduce) { .portrait::after { animation: none; } }
   .role { opacity: .7; }
+  .print-only { display: none; }
+  .projects { list-style: none; padding: 0; display: grid; gap: 1rem; margin-top: 1rem; }
+  .projects h3 { font-size: 1.05rem; }
+  .projects p { opacity: .8; font-size: .95rem; }
+  @media print {
+    .print-only { display: block; margin-top: .75rem; font-size: .85rem; }
+    .body { display: grid; grid-template-columns: 1.1fr 1fr; gap: 0 1.75rem; }
+    .projects { gap: .6rem; margin-top: .5rem; }
+    .projects h3 { font-size: 1rem; }
+    .projects p { font-size: .85rem; opacity: 1; }
+  }
+  .download { display: inline-block; border: 1px solid var(--accent); border-radius: 6px; padding: .4rem .9rem; text-decoration: none; transition: background .3s; }
+  .download:hover { background: rgba(127, 233, 201, .15); }
   .links { display: flex; flex-wrap: wrap; gap: .5rem 1.25rem; }
 </style>
