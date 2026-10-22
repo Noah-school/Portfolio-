@@ -1,0 +1,13 @@
+{
+  "name": "Noah Verstraeten",
+  "title": "Developer",
+  "summary": "Short introduction about yourself.",
+  "contact": { "email": "you@example.com", "github": "https://github.com/Noah-school" },
+  "experience": [
+    { "role": "Role", "company": "Company", "period": "2025 – now", "description": "What you did." }
+  ],
+  "education": [
+    { "degree": "Degree", "school": "AP Hogeschool", "period": "2024 – now" }
+  ],
+  "skills": ["JavaScript", "TypeScript", "Astro"]
+}

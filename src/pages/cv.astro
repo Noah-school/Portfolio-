@@ -1,0 +1,35 @@
+---
+import Base from "../layouts/Base.astro";
+import cv from "../data/cv.json";
+---
+<Base title="CV">
+  <main class="page">
+    <h1>CV</h1>
+    <h2>{cv.name}</h2>
+    <p>{cv.title}</p>
+    <p>{cv.summary}</p>
+    <p><a href={`mailto:${cv.contact.email}`}>{cv.contact.email}</a> · <a href={cv.contact.github}>GitHub</a></p>
+
+    <h3>Experience</h3>
+    {cv.experience.map(e => (
+      <section>
+        <strong>{e.role}</strong> · {e.company} <small>{e.period}</small>
+        <p>{e.description}</p>
+      </section>
+    ))}
+
+    <h3>Education</h3>
+    {cv.education.map(e => (
+      <section><strong>{e.degree}</strong> · {e.school} <small>{e.period}</small></section>
+    ))}
+
+    <h3>Skills</h3>
+    <p>{cv.skills.join(" · ")}</p>
+  </main>
+</Base>
+
+<style>
+  h2, h3 { margin-top: 1.5rem; color: var(--accent); }
+  section { margin-top: .75rem; }
+  small { opacity: .6; }
+</style>
