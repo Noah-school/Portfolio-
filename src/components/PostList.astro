@@ -21,7 +21,7 @@ const tags = [...new Set(posts.flatMap(p => p.data.tags))].sort();
           : <span class="gen" style={`--h:${hue(p.id)}`}></span>}
       </a>
       <div class="body">
-        <p class="meta">{formatDate(p.data.date)} · {readingTime(p)} min read</p>
+        <p class="meta"><span>{formatDate(p.data.date)}</span><span>{readingTime(p)} min read</span></p>
         <h3><a href={`/blog/${p.id}`}>{p.data.title}</a></h3>
         <p class="excerpt">{excerpt(p)}</p>
         {p.data.tags.length > 0 && (
@@ -108,7 +108,7 @@ const tags = [...new Set(posts.flatMap(p => p.data.tags))].sort();
   @keyframes scan { to { transform: translateY(-7px); } }
   @media (prefers-reduced-motion: reduce) { .cover::after { animation: none; } }
 
-  .meta { font-size: .8rem; opacity: .55; letter-spacing: .04em; }
+  .meta { display: flex; gap: 1rem; font-size: .8rem; opacity: .55; letter-spacing: .04em; }
   h3 { margin: .25rem 0 .5rem; font-size: 1.1rem; }
   h3 a { color: #fff; text-decoration: none; transition: color .3s; }
   h3 a:hover { color: var(--accent); }

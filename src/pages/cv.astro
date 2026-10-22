@@ -10,9 +10,9 @@ import cv from "../data/cv.json";
     <h2>{cv.name}</h2>
     <p class="role">{cv.title}</p>
     <p>{cv.tagline} {cv.summary}</p>
-    <p>
-      <a href={`mailto:${cv.contact.email}`}>{cv.contact.email}</a> ·
-      <a href={cv.contact.github}>GitHub</a> ·
+    <p class="links">
+      <a href={`mailto:${cv.contact.email}`}>{cv.contact.email}</a>
+      <a href={cv.contact.github}>GitHub</a>
       <a href={cv.contact.linkedin}>LinkedIn</a>
     </p>
 
@@ -27,4 +27,5 @@ import cv from "../data/cv.json";
 <style>
   h2 { margin-top: 2.5rem; color: var(--accent); }
   .role { opacity: .7; }
+  .links { display: flex; flex-wrap: wrap; gap: .5rem 1.25rem; }
 </style>

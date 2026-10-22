@@ -15,7 +15,7 @@ const toc = headings.filter(h => h.depth === 2 || h.depth === 3);
 <Base title={post.data.title}>
   <div class="layout">
     <main class="post-page">
-      <p class="meta">{formatDate(post.data.date)} · {readingTime(post)} min read</p>
+      <p class="meta"><span>{formatDate(post.data.date)}</span><span>{readingTime(post)} min read</span></p>
       <h1>{post.data.title}</h1>
       {post.data.tags.length > 0 && (
         <ul class="tags">
@@ -78,7 +78,7 @@ const toc = headings.filter(h => h.depth === 2 || h.depth === 3);
   @media (max-width: 1100px) { .layout { grid-template-columns: minmax(0, 46rem); } .toc { display: none; } }
 
   .post-page h1 { font-size: clamp(1.8rem, 5vw, 3rem); text-align: left; margin: .25rem 0 1rem; }
-  .post-page .meta { font-size: .8rem; opacity: .55; letter-spacing: .04em; }
+  .post-page .meta { display: flex; gap: 1rem; font-size: .8rem; opacity: .55; letter-spacing: .04em; }
   .post-page .tags { list-style: none; padding: 0; display: flex; gap: .4rem; flex-wrap: wrap; margin-bottom: 2rem; }
   .post-page .tags a {
     font-size: .72rem;
