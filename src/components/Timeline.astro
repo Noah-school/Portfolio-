@@ -1,0 +1,45 @@
+---
+import cv from "../data/cv.json";
+
+const entries = [...cv.timeline].sort((a, b) => b.start.localeCompare(a.start));
+---
+<ol class="timeline">
+  {entries.map((e, i) => (
+    <li class={`reveal ${e.type}`} style={`transition-delay:${i * 80}ms`}>
+      <span class="dot" aria-hidden="true"></span>
+      <span class="period">{e.period}</span>
+      <strong>{e.title}</strong>
+      {"place" in e && <span class="place">{e.place}</span>}
+    </li>
+  ))}
+</ol>
+
+<style>
+  .timeline { list-style: none; padding: 0 0 0 1.75rem; position: relative; margin: 1.5rem 0; }
+  .timeline::before {
+    content: "";
+    position: absolute;
+    left: .45rem;
+    top: .5rem;
+    bottom: .5rem;
+    width: 1px;
+    background: linear-gradient(var(--accent), transparent);
+  }
+  li { position: relative; display: grid; gap: .1rem; padding-bottom: 1.75rem; }
+  .dot {
+    position: absolute;
+    left: -1.75rem;
+    top: .45rem;
+    width: .9rem;
+    height: .9rem;
+    border-radius: 50%;
+    background: #000;
+    border: 1px solid var(--accent);
+    transition: background .6s, box-shadow .6s;
+  }
+  li.in .dot { background: var(--accent); box-shadow: 0 0 12px rgba(127, 233, 201, .6); }
+  li.study .dot { border-radius: 3px; }
+  .period { font-size: .8rem; opacity: .55; letter-spacing: .05em; }
+  strong { font-size: 1.1rem; }
+  .place { opacity: .75; }
+</style>

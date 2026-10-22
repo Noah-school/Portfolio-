@@ -1,26 +1,36 @@
 {
   "name": "Noah Verstraeten",
   "title": "Student Cybersecurity & Cloud",
-  "summary": "Netwerkbeheer is mijn passie. In mijn vrije tijd ben ik volop bezig met het optimaliseren en uitbreiden van mijn eigen homelab. Mijn droom is om te werken met fysieke clusters, gedreven door een sterke interesse in innovatie.",
+  "tagline": "Network engineering is my passion.",
+  "summary": "I spend my free time optimising and expanding my own homelab. My dream is to work with physical clusters, driven by a strong interest in innovation.",
   "contact": {
     "email": "vnoah0506@gmail.com",
     "github": "https://github.com/Noah-school",
     "linkedin": "https://linkedin.com/in/noahverstraeten"
   },
-  "experience": [
-    { "company": "Pearle Antwerpen", "period": "Juni 2024 – nu" },
-    { "company": "Carrefour, Schoten", "period": "November 2023 – Juli 2023" },
-    { "company": "Pearle, Stabroek", "period": "Juli 2022 – Augustus 2022" }
-  ],
-  "education": [
-    { "degree": "Cybersecurity & Cloud", "school": "AP Hogeschool", "period": "September 2023 – 2027" },
-    { "degree": "Multimedia", "school": "Kunstkaai", "period": "September 2021 – 2023" },
-    { "degree": "Grafische media", "school": "Kunstkaai", "period": "September 2019 – 2021" }
+  "timeline": [
+    { "start": "2024-06", "type": "work", "title": "Pearle Antwerpen", "period": "June 2024 – now" },
+    { "start": "2023-11", "type": "work", "title": "Carrefour, Schoten", "period": "November 2023 – July 2023" },
+    { "start": "2023-09", "type": "study", "title": "Cybersecurity & Cloud", "place": "AP Hogeschool", "period": "September 2023 – 2027" },
+    { "start": "2022-07", "type": "work", "title": "Pearle, Stabroek", "period": "July 2022 – August 2022" },
+    { "start": "2021-09", "type": "study", "title": "Multimedia", "place": "Kunstkaai", "period": "September 2021 – 2023" },
+    { "start": "2019-09", "type": "study", "title": "Graphic media", "place": "Kunstkaai", "period": "September 2019 – 2021" }
   ],
   "skills": [
-    { "group": "Programmeren", "items": ["Python", "Bash", "React", "Angular", "Go"] },
-    { "group": "Netwerkbeheer", "items": ["Cisco netwerking", "Cloud Governance", "VMware/vSphere & Proxmox", "Fortigate & pfSense", "Windows Server", "Linux – FreeBSD, Debian, Fedora, Void"] },
-    { "group": "DevOps", "items": ["Docker & k8s", "Jenkins pipeline", "Ansible", "Git & SBOM", "CI/CD"] },
-    { "group": "Security", "items": ["Netwerkbeveiliging", "IDS/IPS"] }
+    { "group": "Programming", "items": [
+      { "name": "Python", "icon": "siPython" }, { "name": "Bash", "icon": "siGnubash" }, { "name": "React", "icon": "siReact" },
+      { "name": "Angular", "icon": "siAngular" }, { "name": "Go", "icon": "siGo" }
+    ] },
+    { "group": "Networking", "items": [
+      { "name": "Cisco", "icon": "siCisco" }, { "name": "VMware vSphere", "icon": "siVmware" }, { "name": "Proxmox", "icon": "siProxmox" },
+      { "name": "Fortigate", "icon": "siFortinet" }, { "name": "pfSense", "icon": "siPfsense" }, { "name": "Linux", "icon": "siLinux" },
+      { "name": "FreeBSD", "icon": "siFreebsd" }, { "name": "Debian", "icon": "siDebian" }, { "name": "Fedora", "icon": "siFedora" },
+      { "name": "Void Linux", "icon": "siVoidlinux" }, { "name": "Windows Server" }, { "name": "Cloud governance" }
+    ] },
+    { "group": "DevOps", "items": [
+      { "name": "Docker", "icon": "siDocker" }, { "name": "Kubernetes", "icon": "siKubernetes" }, { "name": "Jenkins", "icon": "siJenkins" },
+      { "name": "Ansible", "icon": "siAnsible" }, { "name": "Git", "icon": "siGit" }, { "name": "SBOM" }, { "name": "CI/CD" }
+    ] },
+    { "group": "Security", "items": [{ "name": "Network security" }, { "name": "IDS/IPS" }] }
   ]
 }

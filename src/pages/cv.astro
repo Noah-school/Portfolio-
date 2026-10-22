@@ -1,49 +1,30 @@
 ---
 import Base from "../layouts/Base.astro";
+import Timeline from "../components/Timeline.astro";
+import TechGrid from "../components/TechGrid.astro";
 import cv from "../data/cv.json";
 ---
 <Base title="CV">
   <main class="page">
     <h1>CV</h1>
     <h2>{cv.name}</h2>
-    <p>{cv.title}</p>
-    <p>{cv.summary}</p>
-    <p><a href={`mailto:${cv.contact.email}`}>{cv.contact.email}</a> · <a href={cv.contact.github}>GitHub</a> · <a href={cv.contact.linkedin}>LinkedIn</a></p>
+    <p class="role">{cv.title}</p>
+    <p>{cv.tagline} {cv.summary}</p>
+    <p>
+      <a href={`mailto:${cv.contact.email}`}>{cv.contact.email}</a> ·
+      <a href={cv.contact.github}>GitHub</a> ·
+      <a href={cv.contact.linkedin}>LinkedIn</a>
+    </p>
 
-    <h3>Experience</h3>
-    {cv.experience.map(e => (
-      <section>
-        <strong>{e.company}</strong> <small>{e.period}</small>
-      </section>
-    ))}
+    <h2>Experience &amp; education</h2>
+    <Timeline />
 
-    <h3>Education</h3>
-    {cv.education.map(e => (
-      <section><strong>{e.degree}</strong> · {e.school} <small>{e.period}</small></section>
-    ))}
-
-    <h3>Skills</h3>
-    {cv.skills.map(g => (
-      <section>
-        <strong>{g.group}</strong>
-        <ul class="skills">{g.items.map((k, i) => <li style={`--i:${i}`}>{k}</li>)}</ul>
-      </section>
-    ))}
+    <h2>Skills</h2>
+    <TechGrid />
   </main>
 </Base>
 
 <style>
-  h2, h3 { margin-top: 1.5rem; color: var(--accent); }
-  section { margin-top: .75rem; }
-  small { opacity: .6; }
-  .skills { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: .5rem; }
-  .skills li {
-    border: 1px solid var(--accent);
-    border-radius: 999px;
-    padding: .15rem .8rem;
-    font-size: .85rem;
-    animation: pop .5s calc(var(--i) * 80ms) backwards;
-  }
-  @keyframes pop { from { opacity: 0; transform: scale(.7); } }
-  @media (prefers-reduced-motion: reduce) { .skills li { animation: none; } }
+  h2 { margin-top: 2.5rem; color: var(--accent); }
+  .role { opacity: .7; }
 </style>

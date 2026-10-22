@@ -1,0 +1,48 @@
+---
+import * as si from "simple-icons";
+import cv from "../data/cv.json";
+
+const icons = si as unknown as Record<string, { path: string }>;
+---
+{cv.skills.map(g => (
+  <div class="group reveal">
+    <h3>{g.group}</h3>
+    <ul>
+      {g.items.map(item => {
+        const icon = "icon" in item ? icons[item.icon] : undefined;
+        return (
+          <li class:list={{ plain: !icon }}>
+            {icon && <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d={icon.path} /></svg>}
+            <span>{item.name}</span>
+          </li>
+        );
+      })}
+    </ul>
+  </div>
+))}
+
+<style>
+  .group { margin-bottom: 2rem; }
+  h3 { font-size: .85rem; text-transform: uppercase; letter-spacing: .1em; opacity: .6; margin-bottom: .75rem; }
+  ul { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(7.5rem, 1fr)); gap: .6rem; }
+  li {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    min-height: 5.5rem;
+    padding: .75rem .5rem;
+    border: 1px solid rgba(127, 233, 201, .25);
+    border-radius: 10px;
+    background: rgba(127, 233, 201, .03);
+    text-align: center;
+    font-size: .8rem;
+    transition: transform .3s, border-color .3s, background .3s, color .3s;
+  }
+  li svg { width: 1.8rem; height: 1.8rem; opacity: .7; transition: opacity .3s, color .3s; }
+  li:hover { transform: translateY(-4px); border-color: var(--accent); background: rgba(127, 233, 201, .08); color: var(--accent); }
+  li:hover svg { opacity: 1; color: var(--accent); }
+  li.plain { min-height: 3rem; opacity: .75; }
+  @media (prefers-reduced-motion: reduce) { li:hover { transform: none; } }
+</style>
