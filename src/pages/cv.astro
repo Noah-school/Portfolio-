@@ -4,17 +4,23 @@ import Timeline from "../components/Timeline.astro";
 import TechGrid from "../components/TechGrid.astro";
 import cv from "../data/cv.json";
 ---
-<Base title="CV">
+<Base title="Resume">
   <main class="page">
-    <h1>CV</h1>
-    <h2>{cv.name}</h2>
-    <p class="role">{cv.title}</p>
-    <p>{cv.tagline} {cv.summary}</p>
-    <p class="links">
-      <a href={`mailto:${cv.contact.email}`}>{cv.contact.email}</a>
-      <a href={cv.contact.github}>GitHub</a>
-      <a href={cv.contact.linkedin}>LinkedIn</a>
-    </p>
+    <header class="intro">
+      <figure class="portrait">
+        <img src="/images/noah.jpg" alt={`Portrait of ${cv.name}`} width="600" height="800">
+      </figure>
+      <div>
+        <h1>{cv.name}</h1>
+        <p class="role">{cv.title}</p>
+        <p>{cv.tagline} {cv.summary}</p>
+        <p class="links">
+          <a href={`mailto:${cv.contact.email}`}>{cv.contact.email}</a>
+          <a href={cv.contact.github}>GitHub</a>
+          <a href={cv.contact.linkedin}>LinkedIn</a>
+        </p>
+      </div>
+    </header>
 
     <h2>Experience &amp; education</h2>
     <Timeline />
@@ -26,6 +32,29 @@ import cv from "../data/cv.json";
 
 <style>
   h2 { margin-top: 2.5rem; color: var(--accent); }
+  .intro { display: grid; gap: 1.5rem; align-items: center; margin-top: 2rem; }
+  @media (min-width: 700px) { .intro { grid-template-columns: 12rem 1fr; gap: 2rem; } }
+  .intro h1 { margin: 0; text-align: left; font-size: clamp(1.6rem, 4vw, 2.2rem); letter-spacing: .02em; color: var(--accent); }
+  .intro p { margin-top: .5rem; }
+  .portrait {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 3 / 4;
+    max-width: 12rem;
+    border: 1px solid var(--accent);
+    border-radius: 12px;
+  }
+  .portrait img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .portrait::after {
+    content: "";
+    position: absolute;
+    inset: 0 0 -7px 0;
+    background: repeating-linear-gradient(transparent 0, rgba(127, 233, 201, .12) 3.5px, transparent 7px);
+    pointer-events: none;
+    animation: scan 1.4s linear infinite;
+  }
+  @keyframes scan { to { transform: translateY(-7px); } }
+  @media (prefers-reduced-motion: reduce) { .portrait::after { animation: none; } }
   .role { opacity: .7; }
   .links { display: flex; flex-wrap: wrap; gap: .5rem 1.25rem; }
 </style>
