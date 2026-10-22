@@ -1,6 +1,7 @@
 ---
 title: Apterra
 summary: A project organised by AP to place weather stations in Africa. My role is ensuring connectivity and setting up the LoRaWAN network.
+card: /images/projects/apterra.png
 order: 1
 tags: [lorawan, networking]
 ---

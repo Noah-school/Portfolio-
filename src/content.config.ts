@@ -21,7 +21,7 @@ const projects = defineCollection({
     summary: z.string(),
     order: z.number().default(100),
     tags: z.array(z.string()).default([]),
-    image: z.string().optional(),
+    card: z.string().optional(),
     repo: z.string().url().optional(),
   }),
 });
