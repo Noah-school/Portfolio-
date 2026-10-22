@@ -41,13 +41,32 @@ const current = Astro.url.pathname.split("/")[1];
   addEventListener("scroll", setBar, { passive: true });
   setBar();
 
-  // fade sections in as they enter view
   const io = new IntersectionObserver(entries => {
     for (const e of entries) if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
   }, { threshold: .15 });
   document.querySelectorAll(".reveal").forEach(el => io.observe(el));
 
-  // highlight the nav link of the section in view (home page only)
+  const root = document.documentElement;
+  const unfreeze = () => {
+    if (!root.classList.contains("jump")) return;
+    root.classList.remove("jump");
+    dispatchEvent(new Event("fan:unlock"));
+  };
+  document.querySelectorAll<HTMLAnchorElement>('a[href^="#"], a[href^="/#"]').forEach(a => {
+    a.addEventListener("click", () => {
+      const target = document.getElementById(a.hash.slice(1));
+      const fan = document.getElementById("projects");
+      if (location.pathname !== "/" || !target || !fan) return;
+      const after = target.getBoundingClientRect().top > fan.getBoundingClientRect().top + 1;
+      root.classList.add("jump");
+      dispatchEvent(new CustomEvent("fan:lock", { detail: after ? "last" : "first" }));
+      setTimeout(unfreeze, 2500);
+    });
+  });
+  addEventListener("scrollend", unfreeze);
+  addEventListener("wheel", unfreeze, { passive: true });
+  addEventListener("touchstart", unfreeze, { passive: true });
+
   const links = [...document.querySelectorAll<HTMLAnchorElement>("nav a")];
   const spy = new IntersectionObserver(entries => {
     for (const e of entries) if (e.isIntersecting)
@@ -59,6 +78,8 @@ const current = Astro.url.pathname.split("/")[1];
 <style is:global>
   html { scroll-behavior: smooth; }
   @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+  .jump .card { transition: none !important; }
 
   nav {
     position: fixed;

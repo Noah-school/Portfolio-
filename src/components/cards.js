@@ -53,7 +53,6 @@ function layout() {
   });
 }
 
-
 section.style.setProperty("--cards", projects.length);
 
 addEventListener("pointermove", e => {
@@ -65,17 +64,37 @@ addEventListener("pointermove", e => {
   el.style.setProperty("--ty", `${dx * 14}deg`);
 }, { passive: true });
 
+let locked = false;
+
+const sync = () => {
+  const a = activeFromScroll();
+  if (a === active) return;
+  active = a;
+  layout();
+};
+
 let ticking = false;
 addEventListener("scroll", () => {
-  if (ticking) return;
+  if (ticking || locked) return;
   ticking = true;
-  requestAnimationFrame(() => {
-    ticking = false;
-    const a = activeFromScroll();
-    if (a !== active) { active = a; layout(); }
-  });
+  requestAnimationFrame(() => { ticking = false; if (!locked) sync(); });
 }, { passive: true });
-addEventListener("resize", () => { active = activeFromScroll(); layout(); });
+
+addEventListener("resize", () => {
+  if (!locked) active = activeFromScroll();
+  layout();
+});
+
+addEventListener("fan:lock", e => {
+  locked = true;
+  active = e.detail === "last" ? PAD + projects.length - 1 : PAD;
+  layout();
+});
+
+addEventListener("fan:unlock", () => {
+  locked = false;
+  sync();
+});
 
 active = activeFromScroll();
 layout();
