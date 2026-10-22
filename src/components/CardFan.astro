@@ -1,6 +1,10 @@
 ---
-import projects from "../data/projects.json";
+import { getCollection } from "astro:content";
 import "./CardFan.css";
+
+const projects = (await getCollection("projects"))
+  .sort((a, b) => a.data.order - b.data.order)
+  .map(p => ({ title: p.data.title, image: p.data.image, url: `/projects/${p.id}` }));
 ---
 <section id="projects" class="fan">
   <div class="fan-sticky">
