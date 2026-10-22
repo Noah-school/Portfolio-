@@ -39,17 +39,20 @@ const els = cards.map((c, i) => {
 
 function layout() {
   const w = els[0].offsetWidth;
-  const step = Math.min(w * 1.25, (innerWidth - w) / 2 / Math.max(1, Math.min(2, cards.length / 2)));
+  const narrow = innerWidth < 700;
+  const opacity = narrow ? [1, 0.45] : [1, 0.8, 0.35];
+  const step = narrow ? w * 0.95 : Math.min(w * 1.25, (innerWidth - w) / 2 / Math.max(1, Math.min(2, cards.length / 2)));
+  const tilt = narrow ? 7 : 9;
   els.forEach((el, i) => {
     const d = i - active, a = Math.abs(d);
     el.classList.toggle("active", d === 0);
     el.style.setProperty("--s", d === 0 ? 1.2 : 1);
     el.style.setProperty("--x", `${d * step + Math.sign(d) * w * 0.1}px`);
     el.style.setProperty("--y", `${a * a * w * 0.12 + (d ? w * 0.1 : 0)}px`);
-    el.style.setProperty("--r", `${Math.sign(d) * Math.min(a, 3) * 9 + Math.sign(d) * 1}deg`);
-    el.style.setProperty("--o", [1, 0.8, 0.35][a] ?? 0);
+    el.style.setProperty("--r", `${Math.sign(d) * Math.min(a, 3) * tilt + Math.sign(d) * 1}deg`);
+    el.style.setProperty("--o", opacity[a] ?? 0);
     el.style.setProperty("--z", 10 - a);
-    el.style.pointerEvents = a > 2 ? "none" : "";
+    el.style.pointerEvents = a >= opacity.length ? "none" : "";
   });
 }
 

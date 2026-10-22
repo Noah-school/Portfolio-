@@ -5,6 +5,10 @@
   --mono: ui-monospace, "DejaVu Sans Mono", Menlo, Consolas, monospace;
 }
 
+@media (max-width: 700px) {
+  :root { --card-w: 52vw; }
+}
+
 * { box-sizing: border-box; margin: 0; }
 
 body {
