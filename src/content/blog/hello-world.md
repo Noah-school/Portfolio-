@@ -2,7 +2,7 @@
 title: Hello world
 date: 2026-10-22
 description: First post on the new portfolio, and a tour of what a post can do.
-tags: [meta]
+tags: []
 cover: /images/blog/hello-world/banner.png
 ---
 
