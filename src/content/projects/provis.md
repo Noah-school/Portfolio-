@@ -1,7 +1,7 @@
 ---
 title: Provis
 summary: A visualisation tool for Proxmox, written in Go, that applies changes through the Proxmox API. The long-term goal is an interactive interface like Cisco Packet Tracer or EVE-NG.
-card: /images/projects/provis.png
+card: /images/projects/provis.webp
 order: 3
 tags: [go, proxmox]
 ---

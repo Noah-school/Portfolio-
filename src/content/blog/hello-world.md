@@ -3,7 +3,7 @@ title: Hello world
 date: 2026-10-22
 description: First post on the new portfolio, and a tour of what a post can do.
 tags: []
-cover: /images/blog/hello-world/banner.png
+cover: /images/blog/hello-world/banner.webp
 ---
 
 This is a sample post. Delete it or turn it into a draft by adding `draft: true` to the header.
