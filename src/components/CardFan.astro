@@ -6,7 +6,7 @@ const projects = (await getCollection("projects"))
   .sort((a, b) => a.data.order - b.data.order)
   .map(p => ({ title: p.data.title, image: p.data.card, url: `/projects/${p.id}` }));
 ---
-<section id="projects" class="fan">
+<section id="projects" class="fan" data-anchor="lake" data-label="~/lake">
   <div class="fan-sticky">
     <h2>PROJECTS</h2>
     <div class="stage" id="stage" aria-live="polite" data-projects={JSON.stringify(projects)}></div>

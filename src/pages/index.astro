@@ -1,6 +1,7 @@
 ---
 import Base from "../layouts/Base.astro";
 import CardFan from "../components/CardFan.astro";
+import IslandScene from "../components/IslandScene.astro";
 import Timeline from "../components/Timeline.astro";
 import TechGrid from "../components/TechGrid.astro";
 import PostList from "../components/PostList.astro";
@@ -10,6 +11,7 @@ import cv from "../data/cv.json";
 const posts = (await getPosts()).slice(0, 4);
 ---
 <Base title="Home">
+  <IslandScene />
   <section id="home" class="hero">
     <h1 class="type" data-text={cv.name} aria-label={cv.name}>{cv.name}</h1>
     <p class="role">{cv.title}</p>
@@ -22,7 +24,7 @@ const posts = (await getPosts()).slice(0, 4);
 
   <CardFan />
 
-  <section id="cv" class="block wide">
+  <section id="cv" class="block wide" data-anchor="house" data-label="~/cabin">
     <h2 class="reveal">About Me</h2>
     <p class="lead reveal">{cv.summary}</p>
     <Timeline only="study" />
@@ -31,13 +33,13 @@ const posts = (await getPosts()).slice(0, 4);
     <p class="reveal"><a href="/cv">Full resume →</a></p>
   </section>
 
-  <section id="blog" class="block wide reveal">
+  <section id="blog" class="block wide reveal" data-anchor="hub" data-label="hub.cloud">
     <h2>Latest posts</h2>
     <PostList posts={posts} />
     <p><a href="/blog">All posts →</a></p>
   </section>
 
-  <section id="contact" class="block reveal contact">
+  <section id="contact" class="block reveal contact" data-anchor="home" data-label="home.island">
     <h2>Let's talk</h2>
     <p class="lead">Looking for an internship or a team to learn with? Send me a message.</p>
     <a class="cta primary" href={`mailto:${cv.contact.email}`}>{cv.contact.email}</a>
@@ -81,6 +83,8 @@ const posts = (await getPosts()).slice(0, 4);
   .primary { background: var(--accent); color: #000; font-weight: bold; }
   .primary:hover { background: #fff; }
   .wide { max-width: 56rem; }
+  /* the blog stop shows the cloud network: leave scroll distance below the posts so it stays on screen */
+  #blog { min-height: 190vh; }
   .lead { font-size: 1.15rem; line-height: 1.8; max-width: 40rem; margin-bottom: 1.5rem; }
   .sub { color: var(--accent); margin: 2.5rem 0 1.25rem; letter-spacing: .05em; }
   .contact { text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.25rem; min-height: 100vh; }
