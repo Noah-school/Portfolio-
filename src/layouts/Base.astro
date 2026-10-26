@@ -83,13 +83,24 @@ const current = Astro.url.pathname.split("/")[1];
     dispatchEvent(new Event("fan:unlock"));
   };
   document.querySelectorAll<HTMLAnchorElement>('a[href^="#"], a[href^="/#"]').forEach(a => {
-    a.addEventListener("click", () => {
+    a.addEventListener("click", e => {
       const target = document.getElementById(a.hash.slice(1));
       const fan = document.getElementById("projects");
       if (location.pathname !== "/" || !target || !fan) return;
       const after = target.getBoundingClientRect().top > fan.getBoundingClientRect().top + 1;
+      // the fan is a long sticky stretch: when the trip crosses it, skip the scroll instead of animating through it
+      const y = scrollY, ty = target.getBoundingClientRect().top + y - (parseFloat(getComputedStyle(target).scrollMarginTop) || 0);
+      const top = fan.getBoundingClientRect().top + y, bottom = top + fan.offsetHeight;
+      const skip = target !== fan && Math.min(y, ty) < bottom - 1 && Math.max(y, ty) > top + 1;
       root.classList.add("jump");
       dispatchEvent(new CustomEvent("fan:lock", { detail: after ? "last" : "first" }));
+      if (skip) {
+        e.preventDefault();
+        scrollTo({ top: ty, behavior: "instant" });
+        history.replaceState(null, "", a.hash);
+        requestAnimationFrame(unfreeze);
+        return;
+      }
       setTimeout(unfreeze, 2500);
     });
   });
