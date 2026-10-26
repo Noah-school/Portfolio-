@@ -29,6 +29,12 @@ npm run preview
 | `src/layouts/` | Base and article layouts |
 | `public/` | Static assets (favicons, card art, resume PDF) |
 
+## Island scene
+
+The home page has a scroll-driven Three.js background (`src/components/IslandScene.astro`, model in `public/island.glb`).
+It follows the page sections: home, projects (lake), about (cabin), blog (cloud network seen from below), contact (six connected islands).
+A section opts into the callout marker with `data-anchor` (`lake`, `house`, `hub`, `home`) and `data-label`. The model is a Blender export; objects are looked up by name (`island`, `lake`, `cabin`, `pine`, `pinetrunk`, `rock`, `debris`, `cloud`).
+
 ## Adding content
 
 - **Project:** add a Markdown file to `src/content/projects/`.
