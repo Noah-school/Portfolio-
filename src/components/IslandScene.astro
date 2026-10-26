@@ -1,11 +1,29 @@
 <canvas id="island" aria-hidden="true"></canvas>
 <svg id="hud" aria-hidden="true"><polyline id="hud-line" /><circle id="hud-dot" r="4" /><circle id="hud-ring" r="4" /><text id="hud-label"></text></svg>
 
+<button id="island-toggle" type="button" aria-pressed="false" title="Turn the 3D background on or off">3D: off</button>
+
 <script>
-  // three.js is heavy: fetch it once the page has painted and the browser is idle
-  const start = () => import("./island-scene.ts");
-  const idle = () => ("requestIdleCallback" in window ? requestIdleCallback(start, { timeout: 2500 }) : setTimeout(start, 600));
-  if (document.readyState === "complete") idle(); else addEventListener("load", idle, { once: true });
+  // three.js is heavy: fetch it only when the scene is on, once the page has painted and the browser is idle
+  const btn = document.getElementById("island-toggle") as HTMLButtonElement;
+  let want = false;   // off until the visitor turns it on
+  try { want = localStorage.getItem("island") === "on"; } catch {}
+  let scene: Promise<typeof import("./island-scene.ts")> | null = null;
+  const load = () => (scene ??= import("./island-scene.ts"));
+  const show = () => { btn.setAttribute("aria-pressed", String(want)); btn.textContent = `3D: ${want ? "on" : "off"}`; };
+  const idle = () => ("requestIdleCallback" in window ? requestIdleCallback(() => sync(), { timeout: 2500 }) : setTimeout(sync, 600));
+  const sync = () => {
+    if (want) load().then(m => m.setEnabled(true)).catch(() => btn.remove());   // no WebGL: the button goes too
+    else scene?.then(m => m.setEnabled(false));
+  };
+  show();
+  btn.addEventListener("click", () => {
+    want = !want;
+    try { localStorage.setItem("island", want ? "on" : "off"); } catch {}
+    show(); sync();
+  });
+  if (!want) document.getElementById("island")!.style.display = document.getElementById("hud")!.style.display = "none";
+  else if (document.readyState === "complete") idle(); else addEventListener("load", idle, { once: true });
 </script>
 
 <style is:global>
@@ -17,5 +35,8 @@
   #hud text { fill: var(--accent); font: 12px var(--mono); letter-spacing: .08em; text-transform: uppercase; text-shadow: 0 0 6px #000; }
   @keyframes hud-ring { from { transform: scale(1); opacity: .9; } to { transform: scale(4.5); opacity: 0; } }
   @media (prefers-reduced-motion: reduce) { #hud #hud-ring { animation: none; } }
-  @media print { #island, #hud { display: none !important; } }
+  #island-toggle { position: fixed; right: 1rem; bottom: 1rem; z-index: 5; font: 12px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--accent); background: rgba(0, 0, 0, .6); border: 1px solid rgba(127, 233, 201, .4); border-radius: 6px; padding: .45rem .7rem; cursor: pointer; transition: background .3s, border-color .3s; }
+  #island-toggle:hover { background: rgba(127, 233, 201, .15); border-color: var(--accent); }
+  #island-toggle[aria-pressed="false"] { opacity: .6; }
+  @media print { #island, #hud, #island-toggle { display: none !important; } }
 </style>

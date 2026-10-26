@@ -302,7 +302,7 @@ addEventListener("click", e => {
 
 const clock = new THREE.Clock();
 let prevT = 0, cur = 0, shown = 0;
-renderer.setAnimationLoop(() => {
+const frame = () => {
   const t = clock.getElapsedTime(), dt = Math.min(.05, t - prevT);
   prevT = t;
   const u = stopIndex();
@@ -327,4 +327,12 @@ renderer.setAnimationLoop(() => {
   canvas.style.opacity = String(k.alpha * shown);
   composer.render();
   updateHud(cur);
-});
+};
+
+// the page can switch the scene off (no rendering at all) and back on
+export function setEnabled(on: boolean) {
+  canvas.style.display = hud.svg.style.display = on ? "" : "none";
+  if (on) { cur = stopIndex(); shown = 0; }
+  renderer.setAnimationLoop(on ? frame : null);
+}
+setEnabled(true);
