@@ -1,0 +1,330 @@
+import * as THREE from "three";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
+import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
+import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
+import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
+
+// Scroll-driven wireframe island behind the home page.
+// Stops follow the page sections in order: home, projects (lake), about (cabin),
+// blog (cloud network seen from below), contact (six connected islands).
+const SECTIONS = ["home", "projects", "cv", "blog", "contact"];
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const canvas = document.getElementById("island") as HTMLCanvasElement;
+const wide = () => innerWidth > 800;
+
+let renderer: THREE.WebGLRenderer;
+try {
+  renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+} catch {
+  canvas.remove();                      // no WebGL: the page works without the scene
+  document.getElementById("hud")!.remove();
+  throw new Error("island scene disabled: WebGL unavailable");
+}
+renderer.setPixelRatio(Math.min(devicePixelRatio, wide() ? 1.5 : 1.25));   // phones: fewer pixels to shade
+
+const ACCENT = 0x7fe9c9;
+const LINE = new THREE.Color(ACCENT).multiplyScalar(.62);       // scene stays dimmer than the text
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(35, 1, .1, 200);
+camera.position.set(13, 7.5, 16);
+camera.lookAt(0, 0, 0);
+
+const lineMat = new THREE.LineBasicMaterial({ color: LINE });
+const fillMat = new THREE.MeshBasicMaterial({ color: 0x06120f, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });
+// everything revealed late (network + far islands) fades with scroll
+const netFill = new THREE.MeshBasicMaterial({ color: 0x06120f, transparent: true, opacity: 0, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });
+const netLine = new THREE.LineBasicMaterial({ color: LINE, transparent: true, opacity: 0 });
+const netLink = new THREE.LineBasicMaterial({ color: LINE, transparent: true, opacity: 0, depthTest: false });   // links and packets draw over clouds so they read as continuous
+const netDot = new THREE.MeshBasicMaterial({ color: 0xbffff0, transparent: true, opacity: 0, depthTest: false });
+let reveal = 0;
+
+const pivot = new THREE.Group();        // frame aligned with the camera: +z toward it, x to its right
+pivot.rotation.order = "YXZ";
+scene.add(pivot);
+const group = new THREE.Group();
+pivot.add(group);
+const floaters: { o: THREE.Object3D; y: number; p: number; s: number }[] = [];
+
+const focus = { house: new THREE.Vector3(), lake: new THREE.Vector3(), peak: new THREE.Vector3() };
+const NET_CENTER = new THREE.Vector3(0, 4.4, 0);
+// the five other islands (island-local space)
+const FARS = [
+  { pos: new THREE.Vector3(15, 5.5, -7), rot: 2.4, scale: .8 },
+  { pos: new THREE.Vector3(-14, 6.5, -9), rot: 4.0, scale: .7 },
+  { pos: new THREE.Vector3(7, -2.5, -19), rot: 1.1, scale: .65 },
+  { pos: new THREE.Vector3(-17, -3.0, 3), rot: 5.2, scale: .6 },
+  { pos: new THREE.Vector3(21, -3.5, 6), rot: 3.3, scale: .7 },
+];
+const LINKS = [[0, 1], [0, 2], [0, 4], [1, 3], [2, 3], [3, 5], [4, 5], [1, 5]];   // island pairs, 0 = home island
+// principal axis of the constellation: turned parallel to the screen for the front-on final shot
+const AXIS = (() => {
+  const P = [new THREE.Vector3(), ...FARS.map(f => f.pos)];
+  const n = P.length;
+  const mx = P.reduce((a, p) => a + p.x, 0) / n, mz = P.reduce((a, p) => a + p.z, 0) / n;
+  let sxx = 0, szz = 0, sxz = 0;
+  for (const p of P) { sxx += (p.x - mx) ** 2; szz += (p.z - mz) ** 2; sxz += (p.x - mx) * (p.z - mz); }
+  return .5 * Math.atan2(2 * sxz, sxx - szz);
+})();
+const NET_FOCUS = FARS.reduce((v, f) => v.add(f.pos), new THREE.Vector3()).divideScalar(FARS.length).multiplyScalar(.45);
+
+const _m = new THREE.Matrix4(), _v = new THREE.Vector3(), _q = new THREE.Quaternion(), _s = new THREE.Vector3();
+
+type Net = {
+  nodes: { position: THREE.Vector3 }[]; edges: number[][]; packets: THREE.InstancedMesh | null;
+  state: { e: number; dir: number; t: number; speed: number }[]; islands: { peak: number; gate: number }[];
+  root?: THREE.Group; far?: THREE.Group;
+};
+const net: Net = { nodes: [], edges: [], packets: null, state: [], islands: [] };
+
+let loaded = false;
+
+new GLTFLoader().load("/island.glb?v=1", gltf => {
+  const meshes: THREE.Mesh[] = [];
+  gltf.scene.traverse(o => { if ((o as THREE.Mesh).isMesh) meshes.push(o as THREE.Mesh); });
+  for (const m of meshes) {
+    const n = m.name.toLowerCase();
+    m.material = fillMat;
+    const geo = n.startsWith("lake") ? new THREE.WireframeGeometry(m.geometry) : new THREE.EdgesGeometry(m.geometry, 1);
+    m.add(new THREE.LineSegments(geo, lineMat));
+    if (/debris/.test(n)) floaters.push({ o: m, y: m.position.y, p: Math.random() * 6.28, s: .4 + Math.random() * .4 });
+  }
+  group.add(gltf.scene);
+  buildAnchors(meshes);
+  for (const m of meshes) if (m.name.toLowerCase().startsWith("cloud")) m.visible = false;   // the network brings its own clouds
+  net.far = new THREE.Group();
+  group.add(net.far);
+  for (const f of FARS) {            // the other five islands: copies of this one
+    const c = gltf.scene.clone(true);
+    c.traverse(o => {
+      if ((o as THREE.LineSegments).isLineSegments) (o as THREE.LineSegments).material = netLine;
+      else if ((o as THREE.Mesh).isMesh) (o as THREE.Mesh).material = netFill;
+    });
+    c.position.copy(f.pos); c.rotation.y = f.rot; c.scale.setScalar(f.scale);
+    net.far.add(c);
+  }
+  buildNetwork(gltf.scene);
+  loaded = true;
+});
+
+function buildAnchors(meshes: THREE.Mesh[]) {
+  const find = (p: string) => meshes.find(m => m.name.toLowerCase().startsWith(p));
+  const island = find("island")!;
+  const lake = find("lake"), cabin = find("cabin");
+  if (lake) new THREE.Box3().setFromObject(lake).getCenter(focus.lake);
+  if (cabin) new THREE.Box3().setFromObject(cabin).getCenter(focus.house);
+  const pos = island.geometry.attributes.position, v = new THREE.Vector3();    // summit = highest vertex
+  for (let i = 0; i < pos.count; i++) {
+    v.fromBufferAttribute(pos, i).applyMatrix4(island.matrixWorld);
+    if (i === 0 || v.y > focus.peak.y) focus.peak.copy(v);
+  }
+  focus.peak.y -= .35;
+}
+
+function buildNetwork(parent: THREE.Object3D) {
+  const rnd = (() => { let a = 7; return () => (a = (a * 16807) % 2147483647) / 2147483647; })();   // fixed seed: same layout every load
+  net.root = new THREE.Group();
+  parent.add(net.root);
+  const cloudGeo = new THREE.IcosahedronGeometry(.42, 1), cloudEdges = new THREE.EdgesGeometry(cloudGeo, 1);
+  const addCloud = (p: THREE.Vector3, big = 1) => {
+    const c = new THREE.Group();
+    c.position.copy(p); c.scale.setScalar(big);
+    const n = 3 + Math.floor(rnd() * 3);
+    for (let k = 0; k < n; k++) {
+      const m = new THREE.Mesh(cloudGeo, netFill);
+      m.add(new THREE.LineSegments(cloudEdges, netLine));
+      const mid = 1 - Math.abs(k - (n - 1) / 2) / (n / 2);           // puffy in the middle
+      m.position.set((k - (n - 1) / 2) * .48, mid * .18 + (rnd() - .5) * .1, (rnd() - .5) * .5);
+      m.scale.setScalar(.85 + mid * .55 + rnd() * .15); m.scale.y *= .75;
+      c.add(m);
+    }
+    net.root!.add(c); net.nodes.push(c);
+    return net.nodes.length - 1;
+  };
+  const addPoint = (p: THREE.Vector3) => { net.nodes.push({ position: p.clone() }); return net.nodes.length - 1; };
+  const link = (a: number, b: number) => net.edges.push([a, b]);
+  const isl = [{ pos: new THREE.Vector3(), rot: 0, scale: 1 }, ...FARS];
+  isl.forEach((f, i) => {            // per island: summit point + a gateway cloud above it
+    const peak = i === 0 ? focus.peak.clone() : focus.peak.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0), f.rot).multiplyScalar(f.scale).add(f.pos);
+    peak.y += .15;
+    const top = addPoint(peak);
+    const gate = addCloud(peak.clone().add(new THREE.Vector3((rnd() - .5) * 1.2, 3.4 * f.scale + 1.2, (rnd() - .5) * 1.2)), 1.1);
+    link(top, gate); net.islands.push({ peak: top, gate });
+  });
+  const home = net.islands[0].gate;  // ring of local clouds around the home island
+  for (let i = 0; i < 6; i++) {
+    const a = i / 6 * Math.PI * 2 + rnd() * .4, r = 3.4 + rnd() * 1.8;
+    const c = addCloud(new THREE.Vector3(Math.cos(a) * r, 3.3 + rnd() * 1.6, Math.sin(a) * r));
+    link(home, c); if (i) link(c, c - 1); if (i === 5) link(c, c - 5);
+  }
+  for (const [i, j] of LINKS) {      // gateway -> relay cloud -> gateway
+    const A = net.nodes[net.islands[i].gate].position, B = net.nodes[net.islands[j].gate].position;
+    const mid = A.clone().lerp(B, .5 + (rnd() - .5) * .2); mid.y += 1 + rnd() * 1.5;
+    const r = addCloud(mid); link(net.islands[i].gate, r); link(r, net.islands[j].gate);
+  }
+  const pts: THREE.Vector3[] = [];
+  for (const [a, b] of net.edges) pts.push(net.nodes[a].position, net.nodes[b].position);
+  const links = new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(pts), netLink);
+  links.renderOrder = 10;
+  net.root.add(links);
+  const dots = new THREE.InstancedMesh(new THREE.OctahedronGeometry(.07, 0), netDot, net.nodes.length);   // a small node where every link ends
+  net.nodes.forEach((n, i) => dots.setMatrixAt(i, _m.makeTranslation(n.position.x, n.position.y, n.position.z)));
+  dots.renderOrder = 11; dots.frustumCulled = false;
+  net.root.add(dots);
+  const N = wide() ? 110 : 60, TRAIL = 4;          // packets of light
+  net.packets = new THREE.InstancedMesh(new THREE.IcosahedronGeometry(.08, 0), new THREE.MeshBasicMaterial({ color: 0xffffff, depthTest: false }), N * TRAIL);
+  net.packets.renderOrder = 12;
+  net.packets.frustumCulled = false;
+  net.root.add(net.packets);
+  for (let i = 0; i < N; i++) {
+    net.state.push({ e: Math.floor(rnd() * net.edges.length), dir: rnd() < .5 ? 1 : -1, t: rnd(), speed: .14 + rnd() * .24 });
+  }
+}
+
+function updateNetwork(dt: number) {
+  if (!net.packets) return;
+  net.state.forEach((p, i) => {
+    const [a, b] = net.edges[p.e], len = net.nodes[a].position.distanceTo(net.nodes[b].position);
+    p.t += p.dir * p.speed * dt * 4 / len;
+    if (p.t > 1 || p.t < 0) {        // arrived: carry on along a random link of that node
+      const node = p.t > 1 ? b : a;
+      const opts = net.edges.map((e, k) => (e.includes(node) ? k : -1)).filter(k => k >= 0);
+      p.e = opts[Math.floor(Math.random() * opts.length)];
+      p.dir = net.edges[p.e][0] === node ? 1 : -1; p.t = p.dir === 1 ? 0 : 1;
+    }
+    const [A, B] = net.edges[p.e];
+    const len2 = net.nodes[A].position.distanceTo(net.nodes[B].position);
+    for (let k = 0; k < 4; k++) {    // bright head + fading trail
+      const tt = Math.min(1, Math.max(0, p.t - p.dir * k * .035 * (4 / len2)));
+      _v.lerpVectors(net.nodes[A].position, net.nodes[B].position, tt);
+      _s.setScalar((1 - k * .22) * reveal);
+      net.packets!.setMatrixAt(i * 4 + k, _m.compose(_v, _q, _s));
+    }
+  });
+  net.packets.instanceMatrix.needsUpdate = true;
+}
+
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+composer.addPass(new UnrealBloomPass(new THREE.Vector2(1, 1), .38, .4, .15));
+composer.addPass(new OutputPass());
+let sizeW = 0, sizeH = 0;
+const resize = () => {
+  // mobile browsers fire resize while the address bar slides in and out: only rebuild buffers on a real change
+  if (innerWidth === sizeW && Math.abs(innerHeight - sizeH) < 160) return;
+  sizeW = innerWidth; sizeH = innerHeight;
+  renderer.setSize(innerWidth, innerHeight, false);
+  composer.setSize(innerWidth, innerHeight);
+  camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
+};
+addEventListener("resize", resize);
+resize();
+
+// ---- camera stops (one per page section)
+const camAz = Math.atan2(camera.position.x, camera.position.z);
+const faceCam = (a: number) => camAz - a;                            // group yaw that turns local angle a toward the camera
+const near = (base: number, prev: number) => base + Math.PI * 2 * Math.round((prev - base) / (Math.PI * 2));
+const KEYS = () => {
+  const o = new THREE.Vector3(), fh = focus.house, fl = focus.lake;
+  const yawL = near(faceCam(Math.atan2(fl.x, fl.z)), 0);
+  const yawH = near(faceCam(Math.atan2(fh.x, fh.z)), yawL);
+  const yawN = yawH + 2.2, yawF = near(AXIS + camAz - .3, yawN);
+  const w = wide();
+  return [
+    { f: o,          s: w ? .8 : .62,  x: w ? 8.4 : 0,  y: w ? -.9 : -3.2, yaw: 0,    pitch: 0,    alpha: 1 },     // home
+    { f: fl,         s: w ? 2.3 : 1.9, x: w ? -6 : 0,   y: w ? 0 : 1.5,    yaw: yawL, pitch: .12,  alpha: w ? .55 : .35 },   // projects: lake
+    { f: fh,         s: w ? 2.5 : 2.0, x: w ? 6.4 : 0,  y: w ? -.2 : 1.5,  yaw: yawH, pitch: .22,  alpha: w ? .55 : .35 },   // about: cabin
+    { f: NET_CENTER, s: w ? .78 : .8,  x: w ? 7.4 : 0,  y: w ? .6 : 3,     yaw: yawN, pitch: -.42, alpha: w ? .42 : .3 },    // blog: cloud network
+    { f: NET_FOCUS,  s: w ? .27 : .2,  x: 0,            y: w ? 2.6 : 3.6,  yaw: yawF, pitch: .17,  alpha: w ? .6 : .4 },    // contact: six islands
+  ];
+};
+const ease = (t: number) => t * t * (3 - 2 * t);
+const sample = (u: number) => {
+  const k = KEYS();
+  const i = Math.min(k.length - 2, Math.max(0, Math.floor(u))), t = ease(Math.min(1, Math.max(0, u - i)));
+  const a = k[i], b = k[i + 1], L = (p: number, q: number) => p + (q - p) * t;
+  return { f: a.f.clone().lerp(b.f, t), s: L(a.s, b.s), x: L(a.x, b.x), y: L(a.y, b.y), yaw: L(a.yaw, b.yaw), pitch: L(a.pitch, b.pitch), alpha: L(a.alpha, b.alpha) };
+};
+
+// ---- scroll position -> fractional stop index, from where the real sections are on screen
+const secEls = SECTIONS.map(id => document.getElementById(id)!);
+const stopIndex = () => {
+  const h = innerHeight, mid = h / 2;
+  const zone = Math.min(.35 * h, 400);
+  let u = 0;
+  for (let i = 0; i < secEls.length - 1; i++) {           // crossing the boundary between section i and i+1
+    const top = secEls[i + 1].getBoundingClientRect().top;
+    u += Math.min(1, Math.max(0, (mid - top) / (2 * zone) + .5));
+  }
+  return u;
+};
+
+// mouse parallax (the canvas sits behind the content, so there is no dragging)
+let px = 0, py = 0, tpx = 0, tpy = 0;
+addEventListener("pointermove", e => { if (e.pointerType !== "mouse") return; tpx = e.clientX / innerWidth - .5; tpy = e.clientY / innerHeight - .5; }, { passive: true });
+
+// ---- HUD marker: a line from the section heading to what the section is about
+const hud = {
+  svg: document.getElementById("hud")!, line: document.getElementById("hud-line")!, dot: document.getElementById("hud-dot")!,
+  ring: document.getElementById("hud-ring")!, label: document.getElementById("hud-label")!,
+};
+const marked = SECTIONS.map((id, i) => ({ el: secEls[i], i })).filter(s => s.el.dataset.anchor);
+const anchorOf = (n: string) => n === "house" ? focus.house : n === "lake" ? focus.lake : n === "hub" ? net.nodes[net.islands[0].gate].position : focus.peak;
+const _a = new THREE.Vector3();
+function updateHud(u: number) {
+  let best: (typeof marked)[number] | null = null, bd = 1;
+  for (const m of marked) { const d = Math.abs(u - m.i); if (d < bd) { bd = d; best = m; } }
+  const ready = wide() && best && loaded && net.islands.length > 0;   // on phones the callout would sit on top of the text
+  const h2 = ready ? best!.el.querySelector("h2") : null;
+  let hr: DOMRect | undefined;
+  if (h2) { const r = document.createRange(); r.selectNodeContents(h2); hr = r.getBoundingClientRect(); }   // the heading's text, not its full-width box
+  const onScreen = !!hr && hr.bottom > 70 && hr.top < innerHeight - 40;
+  const fade = ready && onScreen ? Math.min(1, Math.max(0, 1 - bd / .12)) ** 2 : 0;
+  hud.svg.style.opacity = String(fade);
+  if (fade < .02 || !hr) return;
+  scene.updateMatrixWorld();
+  _a.copy(anchorOf(best!.el.dataset.anchor!)); group.localToWorld(_a); _a.project(camera);
+  const ax = (_a.x * .5 + .5) * innerWidth, ay = (-_a.y * .5 + .5) * innerHeight;
+  const dir = ax >= hr.right ? 1 : -1;                                        // leave sideways from the heading, towards the object
+  const sx = dir === 1 ? hr.right + 14 : hr.left - 14, sy = hr.top + hr.height / 2;
+  const ex = dir === 1 ? Math.max(sx + 30, ax - 70) : Math.min(sx - 30, ax + 70);
+  hud.line.setAttribute("points", [[sx, sy], [ex, sy], [ax, ay]].map(p => p.join(",")).join(" "));
+  for (const el of [hud.dot, hud.ring]) { el.setAttribute("cx", String(ax)); el.setAttribute("cy", String(ay)); }
+  hud.label.textContent = `0${best!.i} / ${best!.el.dataset.label}`;
+  hud.label.setAttribute("x", String(ax + 12)); hud.label.setAttribute("y", String(ay - 10));
+}
+
+// clicking a nav/anchor link: the scroll is smooth but the camera hurries after it instead of tracing every stop
+let rush = 0;
+addEventListener("click", e => {
+  if ((e.target as Element).closest?.('a[href^="#"], a[href^="/#"]')) rush = performance.now() + 1500;
+});
+
+const clock = new THREE.Clock();
+let prevT = 0, cur = 0, shown = 0;
+renderer.setAnimationLoop(() => {
+  const t = clock.getElapsedTime(), dt = Math.min(.05, t - prevT);
+  prevT = t;
+  const u = stopIndex();
+  cur += (u - cur) * (reduce || !loaded ? 1 : performance.now() < rush ? .3 : .08);   // reload: start at the right stop; nav click: catch up fast
+  px += (tpx - px) * .05; py += (tpy - py) * .05;
+  const k = sample(cur);
+  reveal = Math.min(1, Math.max(0, (cur - 2.35) / .65)); reveal = reveal * reveal * (3 - 2 * reveal);   // network fades in towards the blog stop
+  netFill.opacity = reveal; netLine.opacity = reveal; netLink.opacity = .75 * reveal; netDot.opacity = reveal;
+  if (net.root && net.far) net.root.visible = net.far.visible = reveal > .003;
+  if (!reduce) updateNetwork(dt);
+  const yaw = k.yaw + (reduce ? 0 : Math.sin(t * .3) * .06) - px * .25;
+  const bob = reduce ? 0 : Math.sin(t * .8) * .12;
+  pivot.rotation.set(-k.pitch + py * .06, camAz, 0);
+  pivot.updateMatrix();
+  group.scale.setScalar(k.s);
+  group.rotation.set(0, yaw - camAz, 0);
+  const off = k.f.clone().multiplyScalar(k.s).applyAxisAngle(new THREE.Vector3(0, 1, 0), yaw - camAz);   // put the focus point on the requested screen spot
+  const want = new THREE.Vector3(k.x, k.y + bob, 0).applyMatrix4(pivot.matrix.clone().invert());
+  group.position.copy(want.sub(off));
+  if (!reduce) for (const f of floaters) f.o.position.y = f.y + Math.sin(t * f.s + f.p) * .2;
+  shown += ((loaded ? 1 : 0) - shown) * .05;
+  canvas.style.opacity = String(k.alpha * shown);
+  composer.render();
+  updateHud(cur);
+});

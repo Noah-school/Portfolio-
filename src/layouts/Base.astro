@@ -47,7 +47,11 @@ const current = Astro.url.pathname.split("/")[1];
   <meta property="og:description" content={description}>
   <meta property="og:url" content={canonical}>
   <meta property="og:image" content={ogImage}>
+  <meta property="og:image:alt" content={`${cv.name}, ${cv.title.toLowerCase()}`}>
   <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content={title}>
+  <meta name="twitter:description" content={description}>
+  <meta name="theme-color" content="#000000">
   {Astro.url.pathname === "/" && <script type="application/ld+json" set:html={JSON.stringify(person)} />}
   <link rel="alternate" type="application/rss+xml" title="Blog" href="/rss.xml">
   <script is:inline>document.documentElement.classList.add("js")</script>
