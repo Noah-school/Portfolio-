@@ -206,6 +206,22 @@ function updateNetwork(dt: number) {
 }
 
 // ---- camera stops (one per page section)
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+composer.addPass(new UnrealBloomPass(new THREE.Vector2(1, 1), .38, .4, .15));
+composer.addPass(new OutputPass());
+let sizeW = 0, sizeH = 0;
+const resize = () => {
+  // mobile browsers fire resize while the address bar slides in and out: only rebuild buffers on a real change
+  if (innerWidth === sizeW && Math.abs(innerHeight - sizeH) < 160) return;
+  sizeW = innerWidth; sizeH = innerHeight;
+  renderer.setSize(innerWidth, innerHeight, false);
+  composer.setSize(innerWidth, innerHeight);
+  camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
+};
+addEventListener("resize", resize);
+resize();
+
 const camAz = Math.atan2(camera.position.x, camera.position.z);
 const faceCam = (a: number) => camAz - a;                            // group yaw that turns local angle a toward the camera
 const near = (base: number, prev: number) => base + Math.PI * 2 * Math.round((prev - base) / (Math.PI * 2));
