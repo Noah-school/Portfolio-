@@ -69,13 +69,15 @@ const AXIS = (() => {
 const NET_FOCUS = FARS.reduce((v, f) => v.add(f.pos), new THREE.Vector3()).divideScalar(FARS.length).multiplyScalar(.45);
 
 const _m = new THREE.Matrix4(), _v = new THREE.Vector3(), _q = new THREE.Quaternion(), _s = new THREE.Vector3();
+const UP = new THREE.Vector3(0, 1, 0), _inv = new THREE.Matrix4();
+const TRAIL = 4;                       // instances per packet: bright head + fading trail
 
 type Net = {
-  nodes: { position: THREE.Vector3 }[]; edges: number[][]; packets: THREE.InstancedMesh | null;
+  nodes: { position: THREE.Vector3 }[]; edges: number[][]; adj: number[][]; len: number[]; packets: THREE.InstancedMesh | null;
   state: { e: number; dir: number; t: number; speed: number }[]; islands: { peak: number; gate: number }[];
   root?: THREE.Group; far?: THREE.Group;
 };
-const net: Net = { nodes: [], edges: [], packets: null, state: [], islands: [] };
+const net: Net = { nodes: [], edges: [], adj: [], len: [], packets: null, state: [], islands: [] };
 
 let loaded = false;
 
@@ -145,7 +147,7 @@ function buildNetwork(parent: THREE.Object3D) {
   const link = (a: number, b: number) => net.edges.push([a, b]);
   const isl = [{ pos: new THREE.Vector3(), rot: 0, scale: 1 }, ...FARS];
   isl.forEach((f, i) => {            // per island: summit point + a gateway cloud above it
-    const peak = i === 0 ? focus.peak.clone() : focus.peak.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0), f.rot).multiplyScalar(f.scale).add(f.pos);
+    const peak = i === 0 ? focus.peak.clone() : focus.peak.clone().applyAxisAngle(UP, f.rot).multiplyScalar(f.scale).add(f.pos);
     peak.y += .15;
     const top = addPoint(peak);
     const gate = addCloud(peak.clone().add(new THREE.Vector3((rnd() - .5) * 1.2, 3.4 * f.scale + 1.2, (rnd() - .5) * 1.2)), 1.1);
@@ -171,7 +173,9 @@ function buildNetwork(parent: THREE.Object3D) {
   net.nodes.forEach((n, i) => dots.setMatrixAt(i, _m.makeTranslation(n.position.x, n.position.y, n.position.z)));
   dots.renderOrder = 11; dots.frustumCulled = false;
   net.root.add(dots);
-  const N = wide() ? 110 : 60, TRAIL = 4;          // packets of light
+  net.len = net.edges.map(([a, b]) => net.nodes[a].position.distanceTo(net.nodes[b].position));   // fixed once the layout is built
+  net.adj = net.nodes.map((_, n) => net.edges.flatMap((e, k) => (e.includes(n) ? [k] : [])));      // edges touching each node
+  const N = wide() ? 110 : 60;          // packets of light
   net.packets = new THREE.InstancedMesh(new THREE.IcosahedronGeometry(.08, 0), new THREE.MeshBasicMaterial({ color: 0xffffff, depthTest: false }), N * TRAIL);
   net.packets.renderOrder = 12;
   net.packets.frustumCulled = false;
@@ -184,47 +188,28 @@ function buildNetwork(parent: THREE.Object3D) {
 function updateNetwork(dt: number) {
   if (!net.packets) return;
   net.state.forEach((p, i) => {
-    const [a, b] = net.edges[p.e], len = net.nodes[a].position.distanceTo(net.nodes[b].position);
-    p.t += p.dir * p.speed * dt * 4 / len;
+    p.t += p.dir * p.speed * dt * 4 / net.len[p.e];
     if (p.t > 1 || p.t < 0) {        // arrived: carry on along a random link of that node
-      const node = p.t > 1 ? b : a;
-      const opts = net.edges.map((e, k) => (e.includes(node) ? k : -1)).filter(k => k >= 0);
+      const node = net.edges[p.e][p.t > 1 ? 1 : 0], opts = net.adj[node];
       p.e = opts[Math.floor(Math.random() * opts.length)];
       p.dir = net.edges[p.e][0] === node ? 1 : -1; p.t = p.dir === 1 ? 0 : 1;
     }
     const [A, B] = net.edges[p.e];
-    const len2 = net.nodes[A].position.distanceTo(net.nodes[B].position);
-    for (let k = 0; k < 4; k++) {    // bright head + fading trail
-      const tt = Math.min(1, Math.max(0, p.t - p.dir * k * .035 * (4 / len2)));
+    for (let k = 0; k < TRAIL; k++) {
+      const tt = Math.min(1, Math.max(0, p.t - p.dir * k * .035 * (4 / net.len[p.e])));
       _v.lerpVectors(net.nodes[A].position, net.nodes[B].position, tt);
       _s.setScalar((1 - k * .22) * reveal);
-      net.packets!.setMatrixAt(i * 4 + k, _m.compose(_v, _q, _s));
+      net.packets!.setMatrixAt(i * TRAIL + k, _m.compose(_v, _q, _s));
     }
   });
   net.packets.instanceMatrix.needsUpdate = true;
 }
 
-const composer = new EffectComposer(renderer);
-composer.addPass(new RenderPass(scene, camera));
-composer.addPass(new UnrealBloomPass(new THREE.Vector2(1, 1), .38, .4, .15));
-composer.addPass(new OutputPass());
-let sizeW = 0, sizeH = 0;
-const resize = () => {
-  // mobile browsers fire resize while the address bar slides in and out: only rebuild buffers on a real change
-  if (innerWidth === sizeW && Math.abs(innerHeight - sizeH) < 160) return;
-  sizeW = innerWidth; sizeH = innerHeight;
-  renderer.setSize(innerWidth, innerHeight, false);
-  composer.setSize(innerWidth, innerHeight);
-  camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
-};
-addEventListener("resize", resize);
-resize();
-
 // ---- camera stops (one per page section)
 const camAz = Math.atan2(camera.position.x, camera.position.z);
 const faceCam = (a: number) => camAz - a;                            // group yaw that turns local angle a toward the camera
 const near = (base: number, prev: number) => base + Math.PI * 2 * Math.round((prev - base) / (Math.PI * 2));
-const KEYS = () => {
+const buildKeys = () => {
   const o = new THREE.Vector3(), fh = focus.house, fl = focus.lake;
   const yawL = near(faceCam(Math.atan2(fl.x, fl.z)), 0);
   const yawH = near(faceCam(Math.atan2(fh.x, fh.z)), yawL);
@@ -237,6 +222,12 @@ const KEYS = () => {
     { f: NET_CENTER, s: w ? .78 : .8,  x: w ? 7.4 : 0,  y: w ? .6 : 3,     yaw: yawN, pitch: -.42, alpha: w ? .42 : .3 },    // blog: cloud network
     { f: NET_FOCUS,  s: w ? .27 : .2,  x: 0,            y: w ? 2.6 : 3.6,  yaw: yawF, pitch: .17,  alpha: w ? .6 : .4 },    // contact: six islands
   ];
+};
+let keys: ReturnType<typeof buildKeys> | null = null, keysFor = "";
+const KEYS = () => {                  // rebuilt only when the anchors load or the layout switches between phone and desktop
+  const id = `${loaded}${wide()}`;
+  if (id !== keysFor) { keys = buildKeys(); keysFor = id; }
+  return keys!;
 };
 const ease = (t: number) => t * t * (3 - 2 * t);
 const sample = (u: number) => {
@@ -319,8 +310,8 @@ const frame = () => {
   pivot.updateMatrix();
   group.scale.setScalar(k.s);
   group.rotation.set(0, yaw - camAz, 0);
-  const off = k.f.clone().multiplyScalar(k.s).applyAxisAngle(new THREE.Vector3(0, 1, 0), yaw - camAz);   // put the focus point on the requested screen spot
-  const want = new THREE.Vector3(k.x, k.y + bob, 0).applyMatrix4(pivot.matrix.clone().invert());
+  const off = k.f.clone().multiplyScalar(k.s).applyAxisAngle(UP, yaw - camAz);   // put the focus point on the requested screen spot
+  const want = new THREE.Vector3(k.x, k.y + bob, 0).applyMatrix4(_inv.copy(pivot.matrix).invert());
   group.position.copy(want.sub(off));
   if (!reduce) for (const f of floaters) f.o.position.y = f.y + Math.sin(t * f.s + f.p) * .2;
   shown += ((loaded ? 1 : 0) - shown) * .05;
