@@ -15,6 +15,7 @@ export const excerpt = (p: Post, max = 170) => {
   const text = (p.body ?? "")
     .replace(/```[\s\S]*?```/g, "")
     .replace(/^#+\s.*$/gm, "")
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, "")
     .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
     .replace(/[`*_>#]/g, "")
     .replace(/\s+/g, " ")
