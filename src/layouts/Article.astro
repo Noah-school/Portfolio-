@@ -15,7 +15,7 @@ const { title, meta = [], description, image, tags = [], tagHref, headings, back
 const toc = headings.filter(h => h.depth === 2 || h.depth === 3);
 ---
 <Base title={title} description={description} image={image} type="article">
-  <div class="layout">
+  <div class:list={["layout", { "no-toc": toc.length <= 1 }]}>
     <main class="post-page">
       {meta.length > 0 && <p class="meta">{meta.map(m => <span>{m}</span>)}</p>}
       <h1>{title}</h1>
@@ -79,6 +79,7 @@ const toc = headings.filter(h => h.depth === 2 || h.depth === 3);
     gap: 3rem;
     padding: 6rem 1rem 4rem;
   }
+  .layout.no-toc { grid-template-columns: minmax(0, 46rem); }
   @media (max-width: 1100px) { .layout { grid-template-columns: minmax(0, 46rem); } .toc { display: none; } }
 
   .post-page h1 { font-size: clamp(1.8rem, 5vw, 3rem); text-align: left; margin: .25rem 0 1rem; }
@@ -125,7 +126,7 @@ const toc = headings.filter(h => h.depth === 2 || h.depth === 3);
   }
   article pre:hover .copy, article pre .copy:focus-visible { opacity: 1; }
   article .mermaid { display: flex; justify-content: center; padding: 1rem; border: 1px solid rgba(127, 233, 201, .2); border-radius: 10px; }
-  article img { max-width: 100%; border-radius: 10px; }
+  article img { display: block; max-width: 100%; height: auto; margin-inline: auto; border-radius: 10px; }
   article blockquote { border-left: 2px solid var(--accent); padding-left: 1rem; opacity: .85; }
   .post-page .back { margin-top: 3rem; }
 
