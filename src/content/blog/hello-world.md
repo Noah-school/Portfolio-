@@ -2,8 +2,9 @@
 title: Hello world
 date: 2026-10-22
 description: My first ever post on my blog!
-tags: []
+tags: [informational, ]
 cover: /images/blog/hello-world/banner.webp
+
 ---
 
 Hi, I'm Noah, though you might already know that.
