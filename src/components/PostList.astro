@@ -125,7 +125,9 @@ const tags = [...new Set(posts.flatMap(p => p.data.tags))].sort();
   .tags a:hover { background: rgba(127, 233, 201, .12); }
 
   .post:not(.featured) { padding-top: 1.25rem; border-top: 1px solid rgba(255, 255, 255, .1); }
-  .post:not(.featured) .cover, .post:not(.featured) .excerpt { display: none; }
+  .post:not(.featured) .excerpt { display: none; }
+  .post:not(.featured) { grid-template-columns: 9rem 1fr; align-items: center; }
+  .post:not(.featured) .cover { aspect-ratio: 16 / 9; }
 
   .post.featured .cover { aspect-ratio: 16 / 9; }
   .post.featured h3 { font-size: 1.6rem; }
