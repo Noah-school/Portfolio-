@@ -1,32 +1,19 @@
 ---
 title: Hello world
 date: 2026-10-22
-description: First post on the new portfolio, and a tour of what a post can do.
+description: My first ever post on my blog!
 tags: []
 cover: /images/blog/hello-world/banner.webp
 ---
 
-This is a sample post. Delete it or turn it into a draft by adding `draft: true` to the header.
+Hi, I'm Noah, though you might already know that.
 
-## Code
+I'll be writing about the technology I like and the projects I'm working on. My main audience is myself: writing a blog about a project is how I prove to myself that I actually understand it. And what's better than sharing that with the internet? :D
 
-Fenced code blocks are highlighted and get a copy button:
+I generally work on many different projects at once, and I want to give that work more structure for my own sake.
 
-```bash
-qm create 100 --name test-vm --memory 2048 --net0 virtio,bridge=vmbr0
-```
+I will be writing about topics such as networking, homelabbing, wireless technologies, security, and my path to learning Go. These posts will be mostly spontaneous, so don't expect anything on a professional level just yet.
 
-## Diagrams
+They could range from tutorials to research and findings.
 
-Mermaid diagrams render in the page:
-
-```mermaid
-flowchart LR
-  Internet --> OPNsense --> Proxmox
-  Proxmox --> VM1
-  Proxmox --> VM2
-```
-
-## Adding a post
-
-Add a `.md` file to `src/content/blog/` with `title`, `date` and optionally `tags`, `description` and `cover` (a path under `public/`). Without a cover, a pattern is generated from the post's name.
+Thanks for reading, and I hope you'll stick around for what comes next!
